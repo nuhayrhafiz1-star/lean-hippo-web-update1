@@ -37,23 +37,56 @@ contact@leanhippo.io so no request is ever lost. **Submissions are blocked until
 every required field (name, business, valid email, phone, date, availability) is
 filled** — exactly as requested.
 
-## 3. Deploy to Hostinger (any plan)
+## 3. Deploy to a Hostinger VPS (Nginx + Let's Encrypt)
 
-Because the site is fully static, it works on **every** Hostinger plan
-(Shared/Web, Cloud, or VPS).
+This is the recommended setup for your VPS: Nginx serves the static `out/`
+folder. The provided `deploy/nginx-leanhippo.conf` mirrors the `.htaccess`
+(security headers, gzip, caching, clean URLs). The `.htaccess` only applies if
+your VPS runs Apache/LiteSpeed (e.g. an OpenLiteSpeed/CyberPanel template).
 
-### Shared / Web / Cloud hosting (most common)
-1. In **hPanel → File Manager** (or via FTP/SFTP), open `public_html`.
-2. Delete the default `default.php` / placeholder files.
-3. Upload **the entire contents of `website/out/`** into `public_html`
-   (so `public_html/index.html` exists — not `public_html/out/index.html`).
-   Make sure the hidden **`.htaccess`** is included (enable "show hidden files").
-4. In **hPanel → SSL**, install the free SSL certificate for `leanhippo.io`.
-5. Point the domain's DNS to Hostinger if it isn't already (hPanel → Domains).
+### A. Point the domain (registered elsewhere) at the VPS
+At your registrar's DNS settings, create:
+- `A` record: `@` → `YOUR_VPS_IP`
+- `A` record: `www` → `YOUR_VPS_IP`
+- (optional) `AAAA` records if the VPS has IPv6.
+DNS can take up to a few hours to propagate.
 
-### VPS hosting
-Either serve `out/` with Nginx/Apache as a static root, or run the Next server.
-For a marketing site, static serving is recommended.
+### B. Prepare the VPS (one-time)
+SSH in, then:
+```bash
+sudo apt update && sudo apt install -y nginx certbot python3-certbot-nginx rsync
+sudo mkdir -p /var/www/leanhippo/out
+
+# Install the site config
+sudo cp deploy/nginx-leanhippo.conf /etc/nginx/sites-available/leanhippo
+sudo ln -s /etc/nginx/sites-available/leanhippo /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+
+# Issue HTTPS certificates (after DNS points here)
+sudo certbot --nginx -d leanhippo.io -d www.leanhippo.io
+```
+Certbot auto-renews via a systemd timer — nothing else to do.
+
+### C. Build & upload (every time you publish)
+From your machine, in `website/`:
+```bash
+VPS_USER=root VPS_HOST=YOUR_VPS_IP ./deploy/deploy-vps.sh
+```
+This builds the export and rsyncs `out/` to `/var/www/leanhippo/out`, then
+reloads Nginx. (Or build locally with `npm run build` and copy `out/` up
+manually with `scp -r out/* root@YOUR_VPS_IP:/var/www/leanhippo/out/`.)
+
+### Performance / handling thousands of concurrent visitors
+Static files served by Nginx handle very high concurrency on modest hardware.
+For extra headroom and global low latency, putting **Cloudflare** (free) in
+front of the domain is recommended — it caches the static pages at the edge,
+adds DDoS protection, and offloads almost all traffic from the VPS.
+
+### Alternative: Apache/LiteSpeed VPS template
+If your VPS uses an OpenLiteSpeed/CyberPanel template, you can instead drop the
+contents of `out/` (including the hidden `.htaccess`) into the site's document
+root and the `.htaccess` will apply directly — no Nginx config needed.
 
 ## 4. Going live checklist
 - [ ] `npm run build` succeeds with no errors
