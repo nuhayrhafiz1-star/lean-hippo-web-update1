@@ -59,7 +59,6 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     images: ["/logos/leanhippo-white.png"],
   },
-  icons: { icon: "/favicon.ico" },
   category: "technology",
 };
 
