@@ -1,0 +1,96 @@
+/* ============================================================
+   LeanHippo Systems — Color Tokens
+   A premium black / graphite / charcoal / soft-white system with
+   cobalt blue as the single technology accent. Built for dark
+   surfaces; light usage is the exception, not the rule.
+   ============================================================ */
+
+:root {
+  /* ---- Base neutral ramp (core black → soft white) ---- */
+  --lh-black:        #050505;  /* Core black — deepest canvas */
+  --lh-graphite:     #111317;  /* Graphite black — primary surface */
+  --lh-charcoal:     #1C1F24;  /* Charcoal grey — raised surface / cards */
+  --lh-slate-900:    #24282E;  /* Hover surface / inset */
+  --lh-slate-800:    #2D323A;  /* Borders on dark glass, dividers (strong) */
+  --lh-slate-700:    #3A404A;  /* Hairline borders (medium) */
+  --lh-slate-600:    #4C535F;  /* Disabled fills */
+  --lh-grey:         #6F7782;  /* Technical grey — secondary text */
+  --lh-grey-400:     #8B939E;  /* Muted UI text / icons */
+  --lh-grey-300:     #AEB4BD;  /* Tertiary on dark */
+  --lh-white-dim:    #C9CCD1;  /* Quiet white */
+  --lh-white:        #F4F4F2;  /* Soft white — primary text & authority */
+  --lh-white-pure:   #FFFFFF;  /* Reserved: edge-light highlights only */
+
+  /* ---- Cobalt accent ramp ---- */
+  --lh-cobalt-050:   #EBF1FF;  /* Pale wash (light contexts only) */
+  --lh-cobalt-100:   #AFC7FF;  /* Pale system blue — highlights, links on dark */
+  --lh-cobalt-300:   #6E97FF;  /* Hover lift on cobalt elements */
+  --lh-cobalt-500:   #1F5EFF;  /* Cobalt blue — PRIMARY accent */
+  --lh-cobalt-600:   #1A4FE0;  /* Pressed / active */
+  --lh-cobalt-700:   #123B9F;  /* Deep cobalt — gradients, depth */
+  --lh-cobalt-900:   #0B2358;  /* Deepest cobalt — fills behind glass */
+
+  /* ---- Functional / status (muted, enterprise) ---- */
+  --lh-positive:     #2FA968;  /* System OK / healthy */
+  --lh-positive-dim: #163A28;
+  --lh-warning:      #C9962E;  /* Attention / pending */
+  --lh-warning-dim:  #3A2E12;
+  --lh-critical:     #D6504A;  /* Leak / failure — controlled red accent */
+  --lh-critical-dim: #3A1716;
+
+  /* ---- Translucent glass fills (panels, dashboards) ---- */
+  --lh-glass-fill:        rgba(28, 31, 36, 0.55);   /* charcoal glass */
+  --lh-glass-fill-strong: rgba(17, 19, 23, 0.78);   /* graphite glass */
+  --lh-glass-fill-cobalt: rgba(31, 94, 255, 0.10);  /* cobalt-tinted layer */
+  --lh-glass-border:      rgba(244, 244, 242, 0.08);/* top-edge hairline */
+  --lh-glass-border-lit:  rgba(31, 94, 255, 0.35);  /* lit edge on active glass */
+
+  /* ---- Technical line work ---- */
+  --lh-line:        rgba(244, 244, 242, 0.07);  /* grid overlays, hairlines */
+  --lh-line-strong: rgba(244, 244, 242, 0.14);  /* dividers */
+  --lh-line-cobalt: rgba(31, 94, 255, 0.28);    /* signal paths, node links */
+
+  /* ============================================================
+     Semantic aliases — reference these in components & layouts
+     ============================================================ */
+
+  /* Canvas & surfaces */
+  --bg-canvas:        var(--lh-black);
+  --bg-base:          var(--lh-graphite);
+  --surface-card:     var(--lh-charcoal);
+  --surface-raised:   var(--lh-slate-900);
+  --surface-inset:    #0C0E11;
+  --surface-glass:    var(--lh-glass-fill);
+  --surface-glass-strong: var(--lh-glass-fill-strong);
+
+  /* Text */
+  --text-primary:     var(--lh-white);
+  --text-secondary:   var(--lh-grey-300);
+  --text-muted:       var(--lh-grey);
+  --text-faint:       var(--lh-slate-600);
+  --text-accent:      var(--lh-cobalt-100);
+  --text-on-cobalt:   var(--lh-white);
+  --text-inverse:     var(--lh-graphite);
+
+  /* Accent */
+  --accent:           var(--lh-cobalt-500);
+  --accent-hover:     var(--lh-cobalt-300);
+  --accent-press:     var(--lh-cobalt-600);
+  --accent-deep:      var(--lh-cobalt-700);
+  --accent-soft:      var(--lh-cobalt-100);
+
+  /* Borders & lines */
+  --border-subtle:    var(--lh-line);
+  --border-default:   var(--lh-slate-800);
+  --border-strong:    var(--lh-slate-700);
+  --border-glass:     var(--lh-glass-border);
+  --border-lit:       var(--lh-glass-border-lit);
+
+  /* Status */
+  --status-ok:        var(--lh-positive);
+  --status-pending:   var(--lh-warning);
+  --status-alert:     var(--lh-critical);
+
+  /* Focus ring */
+  --focus-ring:       var(--lh-cobalt-500);
+}

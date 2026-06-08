@@ -1,0 +1,27 @@
+<!-- @dsCard group="Brand" viewport="700x260" name="Node network motif" subtitle="The business nervous system — nodes & signal paths" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--lh-black); font-family:var(--font-body); }
+  .stage { position:relative; height:260px;
+    background: radial-gradient(120% 120% at 50% 0%, #0E1424 0%, #050505 60%); overflow:hidden; }
+  .stage canvas { position:absolute; inset:0; width:100%; height:100%; }
+  .cap { position:absolute; left:24px; bottom:18px; z-index:2; }
+  .eyebrow { color:var(--lh-cobalt-100); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; }
+  .h { color:var(--text-primary); font-weight:200; font-size:26px; letter-spacing:-0.02em; margin-top:6px; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <canvas class="lh-network" data-density="0.6" data-formed="1" data-seed="7" data-core="1"></canvas>
+    <div class="cap">
+      <div class="eyebrow">Connected systems</div>
+      <div class="h">One business nervous system.</div>
+    </div>
+  </div>
+  <script src="../assets/network.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!-- @dsCard group="Colors" viewport="700x210" name="Glass & line work" subtitle="Translucent panel fills and technical hairlines" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; font-family:var(--font-body); padding:22px;
+    background:
+      var(--grid-fine),
+      radial-gradient(120% 120% at 30% 0%, #14233f 0%, #050505 60%);
+    background-size: 32px 32px, 32px 32px, cover; }
+  .row { display:flex; gap:14px; }
+  .panel { flex:1; height:120px; border-radius:var(--radius-lg); padding:14px; display:flex; flex-direction:column; justify-content:flex-end; }
+  .g1 { background:var(--surface-glass); backdrop-filter:var(--blur-md); border:1px solid var(--border-glass); box-shadow:var(--shadow-edge); }
+  .g2 { background:var(--surface-glass-strong); backdrop-filter:var(--blur-md); border:1px solid var(--border-glass); box-shadow:var(--shadow-edge); }
+  .g3 { background:var(--lh-glass-fill-cobalt); backdrop-filter:var(--blur-md); border:1px solid var(--border-lit); box-shadow:var(--glow-md); }
+  .name { color:var(--text-primary); font-size:12px; font-weight:500; }
+  .tok { color:var(--text-muted); font-family:var(--font-mono); font-size:10px; margin-top:3px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="panel g1"><div class="name">Charcoal glass</div><div class="tok">--surface-glass</div></div>
+    <div class="panel g2"><div class="name">Graphite glass</div><div class="tok">--surface-glass-strong</div></div>
+    <div class="panel g3"><div class="name">Lit cobalt layer</div><div class="tok">--glass-fill-cobalt · --border-lit</div></div>
+  </div>
+</body>
+</html>

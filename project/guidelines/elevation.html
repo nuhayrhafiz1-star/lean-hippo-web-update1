@@ -1,0 +1,25 @@
+<!-- @dsCard group="Spacing" viewport="700x210" name="Elevation & glow" subtitle="Deep neutral shadows + controlled cobalt edge-light" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--lh-graphite); font-family:var(--font-body); padding:30px; }
+  .row { display:flex; gap:26px; }
+  .item { text-align:center; flex:1; }
+  .box { height:84px; background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); }
+  .n { color:var(--text-primary); font-size:12px; font-weight:500; margin-top:14px; }
+  .v { color:var(--text-muted); font-family:var(--font-mono); font-size:10px; margin-top:2px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-sm)"></div><div class="n">sm</div><div class="v">--shadow-sm</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-md)"></div><div class="n">md</div><div class="v">--shadow-md</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-lg)"></div><div class="n">lg</div><div class="v">--shadow-lg</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--glow-md);border-color:var(--border-lit)"></div><div class="n">glow</div><div class="v">--glow-md</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--glow-lg);border-color:var(--border-lit);background:var(--lh-glass-fill-cobalt)"></div><div class="n">glow lg</div><div class="v">--glow-lg</div></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Status" subtitle="Muted, enterprise — OK / pending / alert" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--lh-black); font-family:var(--font-body); padding:22px; }
+  .row { display:flex; gap:16px; }
+  .sw { flex:1; display:flex; flex-direction:column; gap:10px; }
+  .chip { height:56px; border-radius:var(--radius-md); border:1px solid var(--border-default); display:flex; align-items:center; padding:0 16px; gap:10px; }
+  .dot { width:9px; height:9px; border-radius:var(--radius-pill); }
+  .lbl { color:var(--text-primary); font-size:13px; font-weight:500; }
+  .name { color:var(--text-muted); font-family:var(--font-mono); font-size:11px; }
+  .hex { color:var(--text-faint); font-family:var(--font-mono); font-size:10px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw">
+      <div class="chip" style="background:var(--lh-positive-dim)"><span class="dot" style="background:#2FA968;box-shadow:0 0 10px #2FA96899"></span><span class="lbl">System OK</span></div>
+      <div class="name">--status-ok <span class="hex">#2FA968</span></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:var(--lh-warning-dim)"><span class="dot" style="background:#C9962E;box-shadow:0 0 10px #C9962E99"></span><span class="lbl">Pending approval</span></div>
+      <div class="name">--status-pending <span class="hex">#C9962E</span></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:var(--lh-critical-dim)"><span class="dot" style="background:#D6504A;box-shadow:0 0 10px #D6504A99"></span><span class="lbl">Leak detected</span></div>
+      <div class="name">--status-alert <span class="hex">#D6504A</span></div>
+    </div>
+  </div>
+</body>
+</html>

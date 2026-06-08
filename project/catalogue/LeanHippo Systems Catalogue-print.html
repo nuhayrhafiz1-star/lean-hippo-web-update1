@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lean Hippo Systems Catalogue</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  :root { --pageW: 1280px; --pageH: 720px; }
+  html, body { margin: 0; background: #000; }
+  deck-stage:not(:defined) { visibility: hidden; }
+
+  /* ---------- Page base ---------- */
+  .pg {
+    width: var(--pageW); height: var(--pageH);
+    background: radial-gradient(130% 110% at 50% -20%, #0C1118 0%, #050505 58%);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    overflow: hidden; position: relative;
+    --m: 72px;
+  }
+  .pg.flat { background: var(--lh-black); }
+  .pg.graphite { background: radial-gradient(130% 120% at 80% 0%, #11161F 0%, #060708 60%); }
+  /* technical grid overlay */
+  .grid-ov::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: var(--grid-fine); background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 30%, transparent 85%);
+            mask-image: radial-gradient(120% 100% at 50% 0%, #000 30%, transparent 85%);
+    opacity: .6;
+  }
+  .pad { position: absolute; inset: 0; padding: var(--m); display: flex; flex-direction: column; }
+
+  /* full-bleed network */
+  .net { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* ---------- Type ---------- */
+  .eyebrow {
+    font-family: var(--font-body); font-size: 17px; font-weight: 400;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--lh-cobalt-100);
+    display: inline-flex; align-items: center; gap: 16px;
+  }
+  .eyebrow.muted { color: var(--text-muted); }
+  .eyebrow.cover-wing { font-size: 23px; font-weight: 500; letter-spacing: .12em;
+    color: var(--lh-cobalt-100); display: inline-block; transform: scaleX(0.88);
+    transform-origin: left center; }
+  .eyebrow .tick { width: 28px; height: 1px; background: var(--border-strong); }
+  .fn { font-family: var(--font-mono); font-size: 13px; letter-spacing: .16em;
+        text-transform: uppercase; color: var(--text-muted); }
+
+  .pnum { font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+          letter-spacing: .04em; color: var(--text-faint); }
+
+  .h1 { font-family: var(--font-display); font-weight: 200; letter-spacing: -.025em;
+        font-size: 52px; line-height: 1.05; color: var(--text-primary); margin: 0; text-wrap: balance; }
+  .h1.sm { font-size: 42px; }
+  .h1.lg { font-size: 64px; }
+  .h1 b { font-weight: 400; color: #fff; }
+  .h1 .cobalt { color: var(--lh-cobalt-100); font-weight: 300; }
+
+  .sub { font-family: var(--font-display); font-weight: 300; font-size: 22px;
+         line-height: 1.45; color: var(--text-secondary); margin: 0; max-width: 32ch; text-wrap: pretty; }
+  .lead { font-size: 20px; line-height: 1.55; color: var(--text-secondary); font-weight: 300;
+          max-width: 50ch; margin: 0; text-wrap: pretty; }
+  .body { font-size: 18px; line-height: 1.6; color: var(--text-secondary); font-weight: 400;
+          max-width: 54ch; margin: 0; text-wrap: pretty; }
+  .accentline { color: var(--lh-cobalt-100); font-weight: 400; }
+  .quiet { color: var(--text-muted); }
+
+  .ghostnum {
+    position: absolute; font-family: var(--font-display); font-weight: 100;
+    font-size: 460px; line-height: 1; color: rgba(244,244,242,0.028);
+    letter-spacing: -.04em; user-select: none; pointer-events: none;
+    right: 24px; top: -60px; z-index: 0;
+  }
+
+  /* ---------- Glass panel ---------- */
+  .glass {
+    position: relative; background: var(--surface-glass); backdrop-filter: var(--blur-md);
+    border: 1px solid var(--border-glass); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg), var(--shadow-edge); overflow: hidden;
+  }
+  .glass.lit { border-color: var(--border-lit); box-shadow: var(--glow-md), var(--shadow-lg), var(--shadow-edge); }
+  .glass.strong { background: var(--surface-glass-strong); }
+  .glass .edge { position: absolute; top: 0; left: 0; right: 0; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(244,244,242,.18), transparent); }
+  .glass.lit .edge { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+
+  /* ---------- Checklist ---------- */
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+  .list.two { grid-template-columns: 1fr 1fr; gap: 11px 28px; }
+  .list li { display: flex; align-items: flex-start; gap: 11px; font-size: 16px;
+             color: var(--text-secondary); line-height: 1.4; }
+  .list li::before {
+    content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: 7px;
+    border-radius: 1px; background: var(--accent); box-shadow: 0 0 8px rgba(31,94,255,.6);
+    transform: rotate(45deg);
+  }
+  .list.plain li::before { background: var(--lh-slate-600); box-shadow: none; }
+
+  /* ---------- Signal path ---------- */
+  .signal { display: flex; align-items: center; gap: 0; }
+  .signal .stage { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-secondary); padding: 9px 16px;
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    background: var(--surface-card); white-space: nowrap; }
+  .signal .stage.lit { color: var(--lh-cobalt-100); border-color: var(--border-lit);
+    background: var(--lh-glass-fill-cobalt); box-shadow: var(--glow-sm); }
+  .signal .link { flex: 1 1 auto; height: 1px; min-width: 18px;
+    background: linear-gradient(90deg, var(--lh-slate-700), var(--lh-cobalt-500)); position: relative; }
+  .signal .link::after { content: "›"; position: absolute; right: -3px; top: -10px;
+    color: var(--lh-cobalt-300); font-size: 14px; }
+
+  /* ---------- Layout helpers ---------- */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; flex: 1; align-items: center; }
+  .two-col.wide-r { grid-template-columns: 0.85fr 1.15fr; }
+  .two-col.wide-l { grid-template-columns: 1.1fr 0.9fr; }
+  .stack { display: flex; flex-direction: column; }
+  .spacer { flex: 1; }
+  .row { display: flex; }
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+
+  .footmark { position: absolute; left: var(--m); bottom: 38px; display: flex; align-items: flex-end;
+    gap: 16px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text-faint); z-index: 3; }
+  .footmark img { height: 48px; opacity: .95; }
+  .footmark span { white-space: nowrap; padding-bottom: 4px; }
+  .pageid { position: absolute; right: var(--m); bottom: 40px; font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: .12em; color: var(--text-faint); z-index: 3; white-space: nowrap; }
+
+  .chip { display:inline-flex; align-items:center; gap:7px; font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary);
+    padding: 6px 11px; border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+    background: var(--surface-card); white-space: nowrap; }
+  .chip .dot { width:6px; height:6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 7px var(--accent); }
+
+  /* ---------- Diagram primitives ---------- */
+  /* scattered / connected node field */
+  .nodefield { position: relative; width: 100%; height: 100%; }
+  .node { position: absolute; transform: translate(-50%,-50%); display: flex; flex-direction: column;
+    align-items: center; gap: 8px; }
+  .node .dot { width: 13px; height: 13px; border-radius: 50%; background: var(--lh-slate-600);
+    border: 1px solid var(--border-strong); }
+  .node.on .dot { background: var(--accent); border-color: var(--accent);
+    box-shadow: 0 0 14px rgba(31,94,255,.6); }
+  .node .lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+  .node.on .lbl { color: var(--lh-cobalt-100); }
+
+  /* architecture layer */
+  .layer { display: grid; grid-template-columns: 132px 1fr; gap: 24px; align-items: center;
+    padding: 20px 26px; border-radius: var(--radius-md);
+    background: var(--surface-glass); backdrop-filter: var(--blur-sm);
+    border: 1px solid var(--border-glass); box-shadow: var(--shadow-edge); position: relative; }
+  .layer.lit { border-color: var(--border-lit); background: var(--lh-glass-fill-cobalt); box-shadow: var(--glow-sm), var(--shadow-edge); }
+  .layer .lname { font-family: var(--font-display); font-weight: 300; font-size: 19px; color: var(--text-primary); }
+  .layer .lk { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--lh-cobalt-100); margin-bottom: 6px; }
+  .layer .ldesc { font-size: 15px; line-height: 1.5; color: var(--text-secondary); }
+  .layer .lnum { position: absolute; right: 22px; top: 16px; font-family: var(--font-mono);
+    font-size: 11px; color: var(--text-faint); }
+  .conn { width: 1px; height: 16px; margin: 0 auto; background: linear-gradient(var(--lh-cobalt-500), var(--lh-slate-700)); }
+
+  /* organ visual mini-card */
+  .minirow { display:flex; align-items:center; justify-content:space-between; padding: 12px 14px;
+    border-bottom: 1px solid var(--border-subtle); font-size: 13.5px; color: var(--text-secondary); }
+  .minirow:last-child { border-bottom: none; }
+  .minirow .v { font-family: var(--font-mono); color: var(--text-primary); font-size: 13px; }
+  .barwrap { height: 5px; border-radius: 3px; background: var(--surface-inset); overflow: hidden; flex: 1; }
+  .bar { height: 100%; background: linear-gradient(90deg, var(--lh-cobalt-700), var(--lh-cobalt-500)); border-radius: 3px; }
+
+  /* before / after split */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 0; flex: 1; border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); overflow: hidden; }
+  .split .col { padding: 32px 36px; }
+  .split .col.before { background: var(--lh-graphite); }
+  .split .col.after { background: var(--lh-glass-fill-cobalt); border-left: 1px solid var(--border-lit); }
+  .split h4 { margin: 0 0 18px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .16em;
+    text-transform: uppercase; }
+
+  /* vault steps (P9) */
+  .vault-step { display:flex; align-items:center; gap:12px; padding:13px 18px; border-radius:var(--radius-sm);
+    background:var(--surface-card); border:1px solid var(--border-default); font-size:16.5px; color:var(--text-primary);
+    box-shadow:var(--shadow-edge); }
+  .vault-step.lit { background:var(--lh-glass-fill-cobalt); border-color:var(--border-lit); box-shadow:var(--glow-sm); color:var(--lh-cobalt-100); }
+  .vault-step .vmeta { margin-left:auto; font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; color:var(--text-muted); text-transform:uppercase; }
+  .vconn { width:1px; height:13px; margin-left:28px; background:linear-gradient(var(--lh-cobalt-500),var(--lh-slate-700)); }
+
+  /* SOP cards (P11) */
+  .sop { display:flex; align-items:center; justify-content:space-between; padding:14px 15px; border-radius:var(--radius-sm);
+    background:var(--surface-card); border:1px solid var(--border-default); font-size:15px; color:var(--text-secondary); }
+  .sop.lit { background:var(--lh-glass-fill-cobalt); border-color:var(--border-lit); color:var(--lh-cobalt-100); }
+  .sop .sopk { font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted); }
+
+  /* procurement pipeline (P12) */
+  .pipe { display:flex; align-items:center; gap:14px; padding:11px 16px; border-radius:var(--radius-sm);
+    background:var(--surface-card); border:1px solid var(--border-default); font-size:16.5px; color:var(--text-primary); }
+  .pipe.lit { background:var(--lh-glass-fill-cobalt); border-color:var(--border-lit); color:var(--lh-cobalt-100); box-shadow:var(--glow-sm); }
+  .pipe .pipe-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); flex:0 0 auto; }
+  .pipe .pipe-meta { margin-left:auto; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.06em; color:var(--text-muted); text-transform:uppercase; }
+  .pipe-conn { width:1px; height:10px; margin-left:36px; background:var(--lh-cobalt-700); }
+
+  /* the mind Q&A (P13) */
+  .qa { padding:10px 15px; border-radius:var(--radius-sm); background:var(--surface-card);
+    border:1px solid var(--border-default); font-size:15px; color:var(--text-secondary); }
+  .qa.lit { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:var(--glow-md); font-weight:500; }
+
+  /* database / input cells (P15, P17, P18) */
+  .dbcell { display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:var(--radius-sm);
+    background:var(--surface-card); border:1px solid var(--border-default); font-size:13px; color:var(--text-secondary);
+    font-family:var(--font-mono); letter-spacing:.02em; }
+  .dbcell::before { content:""; width:5px; height:5px; border-radius:1px; background:var(--lh-slate-600); transform:rotate(45deg); flex:0 0 auto; }
+  .dbcell.lit { background:var(--lh-glass-fill-cobalt); border-color:var(--border-lit); color:var(--lh-cobalt-100); }
+  .dbcell.lit::before { background:var(--accent); box-shadow:0 0 7px var(--accent); }
+
+  /* engagement steps (P19) */
+  .step { padding:22px; border-radius:var(--radius-md); background:var(--surface-glass); backdrop-filter:var(--blur-sm);
+    border:1px solid var(--border-glass); box-shadow:var(--shadow-edge); }
+  .step.lit { border-color:var(--border-lit); background:var(--lh-glass-fill-cobalt); box-shadow:var(--glow-sm); }
+  .step .stepn { font-family:var(--font-display); font-weight:200; font-size:34px; color:var(--lh-cobalt-100); letter-spacing:-.02em; }
+  .step .steph { font-family:var(--font-display); font-weight:400; font-size:18px; color:var(--text-primary); margin-top:8px; }
+  .step .stepd { font-size:15px; line-height:1.5; color:var(--text-secondary); margin-top:10px; }
+
+  /* proof points (P21) */
+  .proof { padding:22px; border-radius:var(--radius-md); background:var(--surface-glass); backdrop-filter:var(--blur-sm);
+    border:1px solid var(--border-glass); box-shadow:var(--shadow-edge); }
+  .proof.lit { border-color:var(--border-lit); background:var(--lh-glass-fill-cobalt); box-shadow:var(--glow-sm); }
+  .proof .proofh { font-family:var(--font-display); font-weight:400; font-size:18px; color:var(--text-primary); }
+  .proof .proofd { font-size:14.5px; line-height:1.55; color:var(--text-secondary); margin-top:10px; }
+
+  /* ---------- MIND+ upgrade bar (organ pages) ---------- */
+  .pg.org .two-col { flex: 0 1 auto; }
+  .pg.org .mindbar { margin-top: auto; }
+  /* compress organ-page left column so the bar fits with no clipping */
+  .pg.org .h1.sm { font-size: 34px; }
+  /* dense organ pages (Switchboard, Playbook): tighten the AI note so the bar clears the page number */
+  .pg.org .stack .ai-note { font-size: 13px !important; line-height: 1.4 !important; margin-top: 12px !important; }
+  .pg.org .stack .body { margin-top: 14px !important; line-height: 1.5; }
+  .pg.org .stack .anim.d3 { margin-top: 14px !important; }
+  .pg.org .stack .anim.d3 .fn { margin-bottom: 8px !important; }
+  .pg.org .stack .anim.d4 { margin-top: 14px !important; }
+  .pg.org .stack .list li { font-size: 14px; line-height: 1.28; }
+  .pg.org .stack .list.two { gap: 7px 26px; }
+
+  .mindbar { display: flex; align-items: center; gap: 26px; padding: 15px 26px;
+    border-radius: var(--radius-lg); background: var(--lh-glass-fill-cobalt);
+    border: 1px solid var(--border-lit); box-shadow: var(--glow-sm), var(--shadow-edge);
+    position: relative; }
+  .mindbar .edge { position: absolute; top: 0; left: 0; right: 0; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+  .mb-lock { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 0 0 auto; }
+  .mb-orb { width: 50px; height: 50px; border-radius: 50%; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(120% 110% at 32% 24%, rgba(244,247,255,.45) 0%, rgba(175,199,255,.18) 26%, rgba(31,94,255,.20) 60%, rgba(11,18,40,.55) 100%);
+    box-shadow: 0 0 0 1px rgba(175,199,255,.30), 0 8px 24px rgba(31,94,255,.42),
+      inset 0 2px 9px rgba(255,255,255,.34), inset 0 -11px 20px rgba(11,18,40,.55); }
+  .mb-orb::before { content: ""; position: absolute; top: 6px; left: 11px; width: 24px; height: 15px;
+    border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.6), rgba(255,255,255,0));
+    filter: blur(1.5px); }
+  .mb-glyph { position: relative; z-index: 2; display: inline-flex; align-items: center;
+    font-family: var(--font-display); font-weight: 300; font-size: 21px; color: #fff; line-height: 1;
+    text-shadow: 0 1px 6px rgba(11,18,40,.6); }
+  .mb-glyph .plus { color: var(--lh-cobalt-100); font-weight: 400; font-size: 16px; margin-left: 1px; }
+  .mb-word { font-family: var(--font-body); font-weight: 500; font-size: 16px; letter-spacing: .2em;
+    color: var(--lh-cobalt-100); }
+  .mb-divider { width: 1px; align-self: stretch; background: var(--border-lit); margin: 3px 0; }
+  .mb-text { flex: 1; }
+  .mb-h { font-family: var(--font-display); font-weight: 400; font-size: 20px; color: var(--text-primary);
+    letter-spacing: -.01em; }
+  .mb-d { font-size: 14.5px; line-height: 1.5; color: var(--text-secondary); margin-top: 5px; max-width: 88ch; }
+
+  /* entrance — base state is VISIBLE; forwards fill + delay so a frozen
+     (print / paused) timeline shows content, not the hidden start frame */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-deck-active] .anim { animation: rise .55s var(--ease-out) .05s forwards; }
+    [data-deck-active] .anim.d1 { animation-delay: .08s; }
+    [data-deck-active] .anim.d2 { animation-delay: .16s; }
+    [data-deck-active] .anim.d3 { animation-delay: .24s; }
+    [data-deck-active] .anim.d4 { animation-delay: .32s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  }
+
+  /* ---------- Print ---------- */
+  @media print {
+    @page { size: 1280px 720px; margin: 0; }
+    html, body { background: #050505 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    *, *::before, *::after {
+      animation-delay: -99s !important; animation-duration: .001s !important;
+      animation-iteration-count: 1 !important; animation-fill-mode: both !important;
+      animation-play-state: running !important; transition-duration: 0s !important;
+    }
+    .pg { box-shadow: none !important; }
+  }
+</style>
+</head>
+<body>
+<deck-stage width="1280" height="720">
+
+  <!-- ============ PAGE 1 · COVER ============ -->
+  <section data-label="Cover" class="pg grid-ov">
+    <canvas class="net lh-network" data-density="0.34" data-formed="0.45" data-seed="11" data-speed="0.7"></canvas>
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,5,.2) 0%, rgba(5,5,5,0) 30%, rgba(5,5,5,.55) 78%, rgba(5,5,5,.92) 100%); z-index:1;"></div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row">
+        <div class="fn">Systems Catalogue · 2026</div>
+      </div>
+      <img class="anim d1" src="../assets/logos/leanhippo-white.png" alt="Lean Hippo" style="height:184px; width:auto; align-self:flex-start; margin-top:34px; margin-bottom:26px;">
+      <div class="eyebrow anim d2 cover-wing" style="margin-bottom:24px;">Connected business systems</div>
+      <h1 class="h1 lg anim d3" style="max-width:18ch;">We build the systems <b>businesses run on.</b></h1>
+      <p class="sub anim d4" style="margin-top:18px; max-width:46ch;">Control, visibility, automation, databases, and AI intelligence for businesses that are tired of running on memory.</p>
+      <div class="spacer"></div>
+      <div class="row anim d4" style="gap:14px; align-items:center;">
+        <span class="chip"><span class="dot"></span>Operational infrastructure</span>
+        <span class="chip">Not an AI wrapper</span>
+      </div>
+    </div>
+    <div class="pageid">LH · 01 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 2 · THE PROBLEM ============ -->
+  <section data-label="The Problem" class="pg graphite grid-ov">
+    <div class="ghostnum">01</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow muted"><span class="tick"></span>The Problem</div>
+        <div class="fn">Recognition</div>
+      </div>
+      <div class="two-col" style="margin-top:8px;">
+        <div class="stack">
+          <h1 class="h1 anim d1" style="max-width:15ch;">Most businesses do not have systems. They have <b>people compensating</b> for the lack of them.</h1>
+          <p class="body anim d2" style="margin-top:28px;">Information sits across spreadsheets, POS reports, people's heads, supplier chats, manual checklists, invoices, notebooks, and scattered files. The business works, but only because people hold it together every day.</p>
+          <p class="anim d3" style="margin-top:24px; font-family:var(--font-display); font-weight:300; font-size:22px; color:var(--text-primary);">That is not control. <span class="accentline">That is dependence.</span></p>
+        </div>
+        <div class="glass anim d2" style="height:432px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:18px;">
+            <div class="fn" style="position:absolute; top:18px; left:22px;">Disconnected functions</div>
+            <div class="nodefield">
+              <div class="node on" style="left:22%; top:30%;"><span class="dot"></span><span class="lbl">Cash</span></div>
+              <div class="node" style="left:62%; top:22%;"><span class="dot"></span><span class="lbl">Stock</span></div>
+              <div class="node on" style="left:82%; top:40%;"><span class="dot"></span><span class="lbl">Customers</span></div>
+              <div class="node" style="left:40%; top:48%;"><span class="dot"></span><span class="lbl">Suppliers</span></div>
+              <div class="node" style="left:16%; top:64%;"><span class="dot"></span><span class="lbl">Staff</span></div>
+              <div class="node on" style="left:54%; top:72%;"><span class="dot"></span><span class="lbl">Tasks</span></div>
+              <div class="node" style="left:80%; top:74%;"><span class="dot"></span><span class="lbl">Approvals</span></div>
+              <div class="node" style="left:34%; top:86%;"><span class="dot"></span><span class="lbl">Reports</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footmark"><img src="../assets/logos/leanhippo-white.png" alt="Lean Hippo"><span>The systems businesses run on</span></div>
+    <div class="pageid">LH · 02 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 3 · WHAT LEANHIPPO BUILDS ============ -->
+  <section data-label="What We Build" class="pg grid-ov">
+    <canvas class="net lh-network" data-density="0.55" data-formed="0.85" data-seed="4" data-speed="0.8" style="opacity:.5;"></canvas>
+    <div style="position:absolute; inset:0; background:linear-gradient(90deg, rgba(5,5,5,.95) 30%, rgba(5,5,5,.4) 100%); z-index:1;"></div>
+    <div class="ghostnum">02</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>What Lean Hippo Builds</div>
+        <div class="fn">Problem → Offer</div>
+      </div>
+      <div class="spacer"></div>
+      <h1 class="h1 lg anim d1">We connect <b>the business.</b></h1>
+      <p class="lead anim d2" style="margin-top:26px; max-width:48ch;">Lean Hippo designs and installs the control layer between your people, money, customers, stock, suppliers, approvals, documents, and decisions.</p>
+      <p class="anim d3" style="margin-top:22px; font-family:var(--font-display); font-weight:300; font-size:24px; color:var(--text-primary); max-width:30ch;">Not more scattered tools. <span class="accentline">A connected operating system.</span></p>
+      <div class="row anim d4" style="gap:10px; margin-top:30px; flex-wrap:wrap; max-width:64ch;">
+        <span class="chip">Dashboards</span><span class="chip">Workflows</span><span class="chip">Databases</span>
+        <span class="chip">AI assistants</span><span class="chip">Customer response</span><span class="chip">Procurement controls</span>
+        <span class="chip">Approval flows</span><span class="chip">SOP libraries</span><span class="chip">Reporting</span><span class="chip">Integrations</span>
+      </div>
+      <div class="spacer"></div>
+    </div>
+    <div class="footmark"><img src="../assets/logos/leanhippo-white.png" alt="Lean Hippo"><span>The systems businesses run on</span></div>
+    <div class="pageid">LH · 03 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 4 · THE ARCHITECTURE ============ -->
+  <section data-label="Architecture" class="pg graphite grid-ov">
+    <div class="ghostnum">03</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Architecture</div>
+        <div class="fn">Technical credibility</div>
+      </div>
+      <div class="row" style="align-items:flex-end; justify-content:space-between; margin-top:18px;">
+        <h1 class="h1 sm anim d1" style="max-width:20ch;">Every Lean Hippo system has <b>four layers.</b></h1>
+        <p class="body anim d1" style="max-width:30ch; margin-bottom:6px;">Four stacked layers, connected by signal lines. Not just "automations" — architecture.</p>
+      </div>
+      <div class="stack" style="gap:0; margin-top:26px;">
+        <div class="layer anim d1">
+          <div><div class="lk">Layer 1</div><div class="lname">Data Layer</div></div>
+          <div class="ldesc">Where the business stores what is happening: customers, sales, stock, suppliers, invoices, approvals, tasks, SOPs, conversations, and reports.</div>
+        </div>
+        <div class="conn"></div>
+        <div class="layer anim d2">
+          <div><div class="lk">Layer 2</div><div class="lname">Workflow Layer</div></div>
+          <div class="ldesc">Where routine work moves through defined steps: requests, approvals, assignments, reminders, handoffs, escalations, and reviews.</div>
+        </div>
+        <div class="conn"></div>
+        <div class="layer anim d3">
+          <div><div class="lk">Layer 3</div><div class="lname">Visibility Layer</div></div>
+          <div class="ldesc">Where management sees what is happening: dashboards, alerts, summaries, performance indicators, and exception reports.</div>
+        </div>
+        <div class="conn"></div>
+        <div class="layer lit anim d4">
+          <div><div class="lk">Layer 4</div><div class="lname">AI Intelligence Layer</div></div>
+          <div class="ldesc">Where the system can answer questions, summarize information, detect issues, draft responses, suggest actions, and help management make better decisions.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 04 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 5 · THE BOTTLENECK REPORT ============ -->
+  <section data-label="Bottleneck Report" class="pg grid-ov">
+    <div class="ghostnum">04</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Bottleneck Report</div>
+        <div class="fn">The entry point</div>
+      </div>
+      <div class="two-col wide-l" style="margin-top:8px;">
+        <div class="stack">
+          <h1 class="h1 anim d1" style="max-width:17ch;">Before we build, we find <b>what is actually costing you.</b></h1>
+          <p class="body anim d2" style="margin-top:24px;">A business scan that maps where control is weakest, where money or customers are leaking, where decisions depend on people, where information is scattered, and what system should be built first.</p>
+          <div class="anim d3" style="margin-top:26px;">
+            <div class="fn" style="margin-bottom:14px;">What it measures</div>
+            <ul class="list two">
+              <li>Owner dependency</li><li>Cash movement</li>
+              <li>Customer capture</li><li>Procurement flow</li>
+              <li>Operational visibility</li><li>Staff process gaps</li>
+              <li>Reporting delays</li><li>Document chaos</li>
+              <li>AI-readiness</li>
+            </ul>
+          </div>
+        </div>
+        <div class="glass lit anim d2" style="height:452px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:24px; display:flex; flex-direction:column;">
+            <div class="row" style="justify-content:space-between; align-items:center;">
+              <div class="fn" style="color:var(--lh-cobalt-100);">Diagnostic Scan</div>
+              <span class="chip"><span class="dot" style="background:var(--status-alert); box-shadow:0 0 7px var(--status-alert);"></span>3 weak points</span>
+            </div>
+            <div class="nodefield" style="flex:1; margin-top:8px;">
+              <div class="node on" style="left:30%; top:26%;"><span class="dot"></span><span class="lbl">Control</span></div>
+              <div class="node" style="left:70%; top:30%;"><span class="dot" style="background:var(--status-alert); border-color:var(--status-alert); box-shadow:0 0 14px rgba(214,80,74,.6);"></span><span class="lbl" style="color:#E78D88;">Cash leak</span></div>
+              <div class="node on" style="left:50%; top:52%;"><span class="dot"></span><span class="lbl">Customers</span></div>
+              <div class="node" style="left:24%; top:72%;"><span class="dot" style="background:var(--status-alert); border-color:var(--status-alert); box-shadow:0 0 14px rgba(214,80,74,.6);"></span><span class="lbl" style="color:#E78D88;">Owner dep.</span></div>
+              <div class="node on" style="left:76%; top:70%;"><span class="dot"></span><span class="lbl">Suppliers</span></div>
+            </div>
+            <div style="border-top:1px solid var(--border-subtle); padding-top:14px;">
+              <div class="minirow" style="border:none; padding:6px 0;"><span>Control strength</span><span class="v" style="color:var(--status-alert);">42%</span></div>
+              <div class="barwrap"><div class="bar" style="width:42%; background:linear-gradient(90deg,var(--status-alert),#8a302c);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 05 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 6 · DURING DIAGNOSIS ============ -->
+  <section data-label="Diagnosis" class="pg graphite grid-ov">
+    <div class="ghostnum">05</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>What Happens During Diagnosis</div>
+        <div class="fn">Serious & operational</div>
+      </div>
+      <div class="two-col wide-r" style="margin-top:8px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:16ch;">We study how the business <b>actually runs.</b></h1>
+          <p class="body anim d2" style="margin-top:22px;">Lean Hippo maps the real flow of work: who receives information, who approves decisions, where records are kept, what is repeated manually, which tasks are forgotten, where customers disappear, and which decisions depend on memory.</p>
+          <p class="anim d3" style="margin-top:24px; font-size:15.5px; color:var(--text-muted); line-height:1.55; max-width:42ch;"><span class="accentline">Output —</span> a clear system map showing what should be automated, tracked, connected, or rebuilt first.</p>
+        </div>
+        <div class="glass anim d2" style="height:440px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:26px; display:flex; flex-direction:column;">
+            <div class="fn" style="margin-bottom:18px;">Diagnostic inputs</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px 18px; flex:1; align-content:start;">
+              <div class="chip" style="justify-content:flex-start;">Staff interviews</div>
+              <div class="chip" style="justify-content:flex-start;">Spreadsheets & reports</div>
+                            <div class="chip" style="justify-content:flex-start;">POS / sales exports</div>
+              <div class="chip" style="justify-content:flex-start;">Accounting summaries</div>
+              <div class="chip" style="justify-content:flex-start;">Supplier records</div>
+              <div class="chip" style="justify-content:flex-start;">Customer enquiries</div>
+              <div class="chip" style="justify-content:flex-start;">SOPs & process notes</div>
+              <div class="chip" style="justify-content:flex-start; grid-column:span 2;">Recurring management pain points</div>
+            </div>
+            <div class="signal" style="margin-top:18px;">
+              <span class="stage">Streams</span><span class="link"></span>
+              <span class="stage lit">Diagnostic panel</span><span class="link"></span>
+              <span class="stage">System map</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 06 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 7 · THE SYSTEM MAP ============ -->
+  <section data-label="System Map" class="pg grid-ov">
+    <canvas class="net lh-network" data-density="0.6" data-formed="1" data-seed="21" data-core="1" style="opacity:.4;"></canvas>
+    <div style="position:absolute; inset:0; background:radial-gradient(90% 90% at 50% 50%, rgba(5,5,5,.55), rgba(5,5,5,.92)); z-index:1;"></div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The System Map · Product Family</div>
+        <div class="fn">06 organs</div>
+      </div>
+      <div class="anim d1" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding-bottom:24px;">
+        <div style="text-align:center;">
+          <h1 class="h1 sm" style="margin:0 auto;">One business nervous system. <b>Six organs.</b></h1>
+          <p class="body anim d2" style="margin:18px auto 0; text-align:center; max-width:60ch;">Each organ solves a specific control problem. Together, they create the connected system the business runs on.</p>
+        </div>
+        <div class="anim d3" style="margin:48px auto 0; display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:112px; gap:18px; width:820px; max-width:100%;">
+        <div class="glass" style="padding:20px 22px; min-height:104px; box-sizing:border-box;">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">01 · Visibility</div>
+          <div style="font-family:var(--font-display); font-weight:300; font-size:22px;">The Control Room</div>
+        </div>
+        <div class="glass" style="padding:20px 22px; min-height:104px; box-sizing:border-box;">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">02 · Money</div>
+          <div style="font-family:var(--font-display); font-weight:300; font-size:22px;">The Vault</div>
+        </div>
+        <div class="glass" style="padding:20px 22px; min-height:104px; box-sizing:border-box;">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">03 · Customers</div>
+          <div style="font-family:var(--font-display); font-weight:300; font-size:22px;">The Switchboard</div>
+        </div>
+        <div class="glass" style="padding:20px 22px; min-height:104px; box-sizing:border-box;">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">04 · Knowledge</div>
+          <div style="font-family:var(--font-display); font-weight:300; font-size:22px;">The Playbook</div>
+        </div>
+        <div class="glass" style="padding:20px 22px; min-height:104px; box-sizing:border-box;">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">05 · Procurement</div>
+          <div style="font-family:var(--font-display); font-weight:300; font-size:22px;">The Supply Line</div>
+        </div>
+        <div class="glass lit" style="padding:20px 22px; min-height:104px; box-sizing:border-box;">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">06 · Decisions</div>
+          <div style="font-family:var(--font-display); font-weight:300; font-size:22px;">The Mind</div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 07 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 8 · THE CONTROL ROOM ============ -->
+  <section data-label="Control Room" class="pg grid-ov org">
+    <div class="ghostnum">01</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Control Room</div>
+        <div class="fn">Function · Visibility</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:15ch;">Your whole business, live, <b>on one screen.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">Cash, sales, stock, tasks, customer activity, approvals, and performance indicators become visible from one place. Instead of asking five people what happened, management sees it.</p>
+          <div class="anim d3" style="margin-top:22px;">
+            <div class="fn" style="margin-bottom:13px;">What it includes</div>
+            <ul class="list two">
+              <li>Live business dashboard</li><li>Sales visibility</li>
+              <li>Cash visibility</li><li>Stock visibility</li>
+              <li>Task visibility</li><li>Daily operating view</li>
+              <li>Exception alerts</li><li>Performance summaries</li>
+              <li>Branch / department views</li><li>Weekly snapshots</li>
+            </ul>
+          </div>
+          <p class="anim d4" style="margin-top:22px; font-size:16.5px; color:var(--text-primary);">The business stops operating blindly. <span class="quiet" style="font-size:13px;">Connected from POS, spreadsheets, forms, and manual entries — or lightweight inputs where integrations are not available.</span></p>
+        </div>
+        <div class="glass lit anim d2" style="height:398px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:22px; display:flex; flex-direction:column; gap:14px;">
+            <div class="row" style="justify-content:space-between; align-items:center;">
+              <div class="fn" style="color:var(--lh-cobalt-100);">Live · Control Room</div>
+              <span class="chip"><span class="dot" style="background:var(--status-ok); box-shadow:0 0 7px var(--status-ok);"></span>All systems</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:11px;">
+              <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:14px;">
+                <div class="fn" style="font-size:9.5px;">Cash today</div>
+                <div style="font-size:30px; color:#fff; margin-top:8px;">48<span style="font-size:16px; color:var(--text-muted);">.2k</span></div>
+              </div>
+              <div style="background:var(--lh-glass-fill-cobalt); border:1px solid var(--border-lit); border-radius:var(--radius-md); padding:14px;">
+                <div class="fn" style="font-size:9.5px;">Open tasks</div>
+                <div style="font-size:30px; color:var(--lh-cobalt-100); margin-top:8px;">17</div>
+              </div>
+              <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:14px;">
+                <div class="fn" style="font-size:9.5px;">Enquiries</div>
+                <div style="font-size:30px; color:#fff; margin-top:8px;">9</div>
+              </div>
+            </div>
+            <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:16px; flex:1;">
+              <div class="row" style="justify-content:space-between;"><div class="fn" style="font-size:9.5px;">Sales · this week</div><div class="fn" style="font-size:9.5px; color:var(--lh-cobalt-100);">+12%</div></div>
+              <svg viewBox="0 0 320 96" preserveAspectRatio="none" style="width:100%; height:120px; margin-top:8px;">
+                <polyline points="0,80 40,68 80,72 120,52 160,58 200,38 240,44 280,22 320,12" fill="none" stroke="#1F5EFF" stroke-width="2" vector-effect="non-scaling-stroke"/>
+                <polyline points="0,96 0,80 40,68 80,72 120,52 160,58 200,38 240,44 280,22 320,12 320,96" fill="url(#g8)" opacity="0.25" stroke="none"/>
+                <defs><linearGradient id="g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F5EFF"/><stop offset="1" stop-color="#1F5EFF" stop-opacity="0"/></linearGradient></defs>
+              </svg>
+            </div>
+            <div class="row" style="gap:9px;">
+              <span class="chip" style="flex:1; justify-content:center;">Stock OK</span>
+              <span class="chip" style="flex:1; justify-content:center; color:#E0BE76; border-color:rgba(201,150,46,.35);">2 approvals</span>
+              <span class="chip" style="flex:1; justify-content:center;">Daily view</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mindbar anim d4">
+        <div class="edge"></div>
+        <div class="mb-lock">
+          <div class="mb-orb"><span class="mb-glyph">M<span class="plus">+</span></span></div>
+          <div class="mb-word">MIND+</div>
+        </div>
+        <div class="mb-divider"></div>
+        <div class="mb-text">
+          <div class="mb-h">Upgrade with MIND+</div>
+          <div class="mb-d">Add an intelligence layer that lets this system answer questions, summarise activity, detect issues, and suggest what needs attention next.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 08 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 9 · THE VAULT ============ -->
+  <section data-label="The Vault" class="pg graphite grid-ov org">
+    <div class="ghostnum">02</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Vault</div>
+        <div class="fn">Function · Money control</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:14ch;">Nothing of value <b>moves unseen.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">Cash, till movement, petty cash, purchase approvals, expenses, and handovers move through defined rules with records, approvals, and review points.</p>
+          <div class="anim d3" style="margin-top:22px;">
+            <div class="fn" style="margin-bottom:13px;">What it includes</div>
+            <ul class="list two">
+              <li>Petty cash tracking</li><li>Till reconciliation</li>
+              <li>Expense approval</li><li>Purchase approval</li>
+              <li>Cash handover logs</li><li>Exception alerts</li>
+              <li>Audit history</li><li>Staff accountability</li>
+              <li>Approval thresholds</li><li>Daily finance review</li>
+            </ul>
+          </div>
+          <p class="anim d4" style="margin-top:22px; font-size:16.5px; color:var(--text-primary);">Leakage becomes visible <span class="accentline">before it becomes normal.</span></p>
+        </div>
+        <div class="glass anim d2" style="height:398px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:26px; display:flex; flex-direction:column; justify-content:center; gap:18px;">
+            <div class="fn" style="color:var(--lh-cobalt-100);">Controlled financial movement</div>
+            <div style="display:flex; flex-direction:column; gap:0;">
+              <div class="vault-step">Request <span class="vmeta">logged</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step">Approve <span class="vmeta">routed</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step">Spend <span class="vmeta">recorded</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step">Record <span class="vmeta">traceable</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step lit">Review <span class="vmeta">who · what · when</span></div>
+            </div>
+            <div class="row" style="gap:9px; margin-top:6px;">
+              <span class="chip"><span class="dot" style="background:var(--status-alert); box-shadow:0 0 7px var(--status-alert);"></span>1 exception flagged</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mindbar anim d4">
+        <div class="edge"></div>
+        <div class="mb-lock">
+          <div class="mb-orb"><span class="mb-glyph">M<span class="plus">+</span></span></div>
+          <div class="mb-word">MIND+</div>
+        </div>
+        <div class="mb-divider"></div>
+        <div class="mb-text">
+          <div class="mb-h">Upgrade with MIND+</div>
+          <div class="mb-d">Add an intelligence layer that lets this system answer questions, summarise activity, detect issues, and suggest what needs attention next.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 09 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 10 · THE SWITCHBOARD ============ -->
+  <section data-label="Switchboard" class="pg grid-ov org">
+    <div class="ghostnum">03</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Switchboard</div>
+        <div class="fn">Function · Customer response</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:16ch;">Every enquiry caught, answered, <b>assigned, and tracked.</b></h1>
+          <p class="body anim d2" style="margin-top:18px;">Customer messages from Instagram, Facebook, website, forms, and calls are routed into one response system so enquiries stop disappearing between channels.</p>
+          <div class="anim d3" style="margin-top:20px;">
+            <div class="fn" style="margin-bottom:13px;">What it includes</div>
+            <ul class="list two">
+              <li>Multi-channel capture</li><li>Auto-response where suitable</li>
+              <li>Human handoff</li><li>Lead assignment</li>
+              <li>Missed enquiry alerts</li><li>CRM entry</li>
+              <li>Follow-up reminders</li><li>Conversation history</li>
+              <li>Response templates</li><li>Escalation rules</li>
+            </ul>
+          </div>
+          <p class="anim d4 ai-note" style="margin-top:18px; font-size:15.5px; color:var(--text-muted); line-height:1.5; max-width:48ch;"><span style="color:var(--lh-cobalt-100);">How AI is used —</span> classify enquiries, suggest replies, summarize conversations, detect urgency, draft responses. Humans approve sensitive replies before they are sent.</p>
+        </div>
+        <div class="glass anim d2" style="height:398px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:24px; display:flex; flex-direction:column; justify-content:center;">
+            <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:20px;">One response system</div>
+            <div style="display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:0 16px;">
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <span class="chip" style="justify-content:flex-start;">Instagram</span>
+                <span class="chip" style="justify-content:flex-start;">Facebook</span>
+                <span class="chip" style="justify-content:flex-start;">Website</span>
+                <span class="chip" style="justify-content:flex-start;">Calls</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:center; height:100%;">
+                <svg width="100%" height="180" viewBox="0 0 120 180" preserveAspectRatio="none">
+                  <path d="M0,32 C60,32 60,90 110,90" stroke="#2D323A" fill="none"/>
+                  <path d="M0,71 C60,71 60,90 110,90" stroke="#1F5EFF" fill="none"/>
+                  <path d="M0,109 C60,109 60,90 110,90" stroke="#2D323A" fill="none"/>
+                  <path d="M0,148 C60,148 60,90 110,90" stroke="#2D323A" fill="none"/>
+                </svg>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                <div style="width:54px; height:54px; border-radius:50%; background:var(--lh-glass-fill-cobalt); border:1px solid var(--border-lit); box-shadow:var(--glow-md); display:flex; align-items:center; justify-content:center;">
+                  <div style="width:14px; height:14px; border-radius:50%; background:var(--accent); box-shadow:0 0 14px var(--accent);"></div>
+                </div>
+                <div class="fn" style="font-size:9px; text-align:center;">Switchboard</div>
+              </div>
+            </div>
+            <div class="row" style="gap:8px; margin-top:24px; justify-content:flex-end;">
+              <span class="chip">Answered</span><span class="chip">Assigned</span><span class="chip">Followed up</span><span class="chip">Recorded</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mindbar anim d4">
+        <div class="edge"></div>
+        <div class="mb-lock">
+          <div class="mb-orb"><span class="mb-glyph">M<span class="plus">+</span></span></div>
+          <div class="mb-word">MIND+</div>
+        </div>
+        <div class="mb-divider"></div>
+        <div class="mb-text">
+          <div class="mb-h">Upgrade with MIND+</div>
+          <div class="mb-d">Add an intelligence layer that lets this system answer questions, summarise activity, detect issues, and suggest what needs attention next.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 10 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 11 · THE PLAYBOOK ============ -->
+  <section data-label="The Playbook" class="pg graphite grid-ov org">
+    <div class="ghostnum">04</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Playbook</div>
+        <div class="fn">Function · Knowledge & process</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:16ch;">The business stops living <b>in people's heads.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">Processes, standards, role instructions, recurring tasks, escalation rules, and operating knowledge are captured into a system staff can actually follow.</p>
+          <div class="anim d3" style="margin-top:22px;">
+            <div class="fn" style="margin-bottom:13px;">What it includes</div>
+            <ul class="list two">
+              <li>SOP library</li><li>Staff checklists</li>
+              <li>Onboarding flows</li><li>Role instructions</li>
+              <li>Recurring task templates</li><li>Escalation rules</li>
+              <li>Approval logic</li><li>Training references</li>
+              <li>Quality standards</li><li>Internal knowledge base</li>
+            </ul>
+          </div>
+          <p class="anim d4 ai-note" style="margin-top:20px; font-size:15.5px; color:var(--text-muted); line-height:1.5; max-width:48ch;"><span style="color:var(--lh-cobalt-100);">How AI is used —</span> turn rough notes, voice instructions, meeting minutes, and policy documents into structured SOPs, checklists, FAQs, and searchable knowledge.</p>
+        </div>
+        <div class="glass anim d2" style="height:398px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:24px; display:flex; flex-direction:column;">
+            <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div class="fn" style="color:var(--lh-cobalt-100);">Institutional memory</div>
+              <span class="chip">42 SOPs</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; flex:1; align-content:start;">
+              <div class="sop">Opening checklist <span class="sopk">v3</span></div>
+              <div class="sop">Cash handover <span class="sopk">v2</span></div>
+              <div class="sop lit">Customer refund <span class="sopk">v5</span></div>
+              <div class="sop">Stock count <span class="sopk">v1</span></div>
+              <div class="sop">New staff onboarding <span class="sopk">v4</span></div>
+              <div class="sop">Supplier dispute <span class="sopk">v2</span></div>
+              <div class="sop">Closing checklist <span class="sopk">v3</span></div>
+              <div class="sop">Escalation rules <span class="sopk">v6</span></div>
+            </div>
+            <div class="signal" style="margin-top:16px;">
+              <span class="stage">Notes</span><span class="link"></span>
+              <span class="stage lit">Structured SOP</span><span class="link"></span>
+              <span class="stage">Searchable</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mindbar anim d4">
+        <div class="edge"></div>
+        <div class="mb-lock">
+          <div class="mb-orb"><span class="mb-glyph">M<span class="plus">+</span></span></div>
+          <div class="mb-word">MIND+</div>
+        </div>
+        <div class="mb-divider"></div>
+        <div class="mb-text">
+          <div class="mb-h">Upgrade with MIND+</div>
+          <div class="mb-d">Add an intelligence layer that lets this system answer questions, summarise activity, detect issues, and suggest what needs attention next.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 11 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 12 · THE SUPPLY LINE ============ -->
+  <section data-label="Supply Line" class="pg grid-ov org">
+    <div class="ghostnum">05</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Supply Line</div>
+        <div class="fn">Function · Procurement</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:15ch;">Procurement stops <b>being informal.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">Supplier prices, purchase requests, stock needs, approvals, delivery records, and reorder logic move through one controlled flow.</p>
+          <div class="anim d3" style="margin-top:22px;">
+            <div class="fn" style="margin-bottom:13px;">What it includes</div>
+            <ul class="list two">
+              <li>Supplier database</li><li>Price comparison</li>
+              <li>Purchase request flow</li><li>Approval workflow</li>
+              <li>Reorder prompts</li><li>Delivery tracking</li>
+              <li>Procurement history</li><li>Preferred supplier logic</li>
+              <li>Variance alerts</li><li>Stock-linked suggestions</li>
+            </ul>
+          </div>
+          <p class="anim d4" style="margin-top:22px; font-size:16.5px; color:var(--text-primary);">Procurement leakage, delays, and informal buying become <span class="accentline">easier to control.</span></p>
+        </div>
+        <div class="glass anim d2" style="height:398px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:26px; display:flex; flex-direction:column; justify-content:center; gap:0;">
+            <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:22px;">One controlled pipeline</div>
+            <div class="pipe"><span class="pipe-dot"></span>Supplier<span class="pipe-meta">quoted price</span></div>
+            <div class="pipe-conn"></div>
+            <div class="pipe"><span class="pipe-dot"></span>Request<span class="pipe-meta">stock need</span></div>
+            <div class="pipe-conn"></div>
+            <div class="pipe lit"><span class="pipe-dot"></span>Approval<span class="pipe-meta">threshold check</span></div>
+            <div class="pipe-conn"></div>
+            <div class="pipe"><span class="pipe-dot"></span>Purchase<span class="pipe-meta">recorded</span></div>
+            <div class="pipe-conn"></div>
+            <div class="pipe"><span class="pipe-dot"></span>Delivery<span class="pipe-meta">tracked</span></div>
+            <div class="pipe-conn"></div>
+            <div class="pipe"><span class="pipe-dot"></span>Stock<span class="pipe-meta">updated</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="mindbar anim d4">
+        <div class="edge"></div>
+        <div class="mb-lock">
+          <div class="mb-orb"><span class="mb-glyph">M<span class="plus">+</span></span></div>
+          <div class="mb-word">MIND+</div>
+        </div>
+        <div class="mb-divider"></div>
+        <div class="mb-text">
+          <div class="mb-h">Upgrade with MIND+</div>
+          <div class="mb-d">Add an intelligence layer that lets this system answer questions, summarise activity, detect issues, and suggest what needs attention next.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 12 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 13 · THE MIND ============ -->
+  <section data-label="The Mind" class="pg grid-ov">
+    <canvas class="net lh-network" data-density="0.7" data-formed="1" data-seed="33" data-core="1" style="opacity:.45;"></canvas>
+    <div style="position:absolute; inset:0; background:linear-gradient(90deg, rgba(5,5,5,.94) 36%, rgba(5,5,5,.35) 100%); z-index:1;"></div>
+    <div class="ghostnum">06</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Mind</div>
+        <div class="fn">Function · AI management intelligence</div>
+      </div>
+      <div class="two-col wide-l" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 anim d1" style="max-width:13ch;">Ask the business <b>what is happening.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">The Mind is Lean Hippo's AI intelligence layer. It sits above the connected systems and helps management ask questions, retrieve information, detect issues, summarize activity, and decide with context.</p>
+          <p class="anim d3" style="margin-top:20px; font-size:15.5px; color:var(--text-muted); line-height:1.55; max-width:50ch;">It uses company data from dashboards, workflows, customer and supplier records, SOPs, task systems, reports, uploaded documents, and approved internal knowledge. <span style="color:var(--lh-cobalt-100);">The stronger the database, the more useful the intelligence layer becomes.</span></p>
+        </div>
+        <div class="glass lit anim d2" style="height:466px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:24px; display:flex; flex-direction:column;">
+            <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div class="fn" style="color:var(--lh-cobalt-100);">The Mind · ask</div>
+              <span class="chip"><span class="dot"></span>Context loaded</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:9px; flex:1;">
+              <div class="qa">What needs attention today?</div>
+              <div class="qa">Where are we leaking money?</div>
+              <div class="qa">Which enquiries were missed?</div>
+              <div class="qa">Which supplier price changed?</div>
+              <div class="qa">What stock needs action?</div>
+              <div class="qa">Which staff tasks are slipping?</div>
+              <div class="qa">What is waiting for approval?</div>
+              <div class="qa">What changed since last week?</div>
+              <div class="qa lit">What should be fixed first?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 13 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 14 · TRAINING THE MIND ============ -->
+  <section data-label="Training The Mind" class="pg graphite grid-ov">
+    <div class="ghostnum">07</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>Training The Mind</div>
+        <div class="fn">Why it is not a generic chatbot</div>
+      </div>
+      <div class="two-col wide-r" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:17ch;">The AI becomes useful when it <b>learns the business.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">The Mind is not useful because it is generic AI. It becomes useful because it is trained around the company's own data, language, processes, products, people, rules, and decisions.</p>
+          <div class="anim d3" style="margin-top:20px;">
+            <div class="fn" style="margin-bottom:13px;">Onboarding builds the knowledge base through</div>
+            <ul class="list two">
+              <li>Business interviews</li><li>SOP uploads</li>
+              <li>Product / service data</li><li>Supplier information</li>
+              <li>Customer FAQs</li><li>Historical reports</li>
+              <li>Meeting notes</li><li>Approval rules</li>
+              <li>Operating policies</li><li>Staff role definitions</li>
+            </ul>
+          </div>
+          <p class="anim d4" style="margin-top:18px; font-size:16.5px; color:var(--text-primary);">The AI does not just chat. <span class="accentline">It answers from the business's own operating memory.</span></p>
+        </div>
+        <div class="glass anim d2" style="height:474px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:26px; display:flex; flex-direction:column; justify-content:center; gap:0;">
+            <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:18px;">Onboarding pipeline</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px;">
+              <span class="chip" style="justify-content:flex-start;">Documents</span>
+              <span class="chip" style="justify-content:flex-start;">Conversations</span>
+              <span class="chip" style="justify-content:flex-start;">Systems</span>
+              <span class="chip" style="justify-content:flex-start;">Reports</span>
+              <span class="chip" style="justify-content:flex-start; grid-column:span 2;">SOPs &amp; operating knowledge</span>
+            </div>
+            <div style="display:flex; justify-content:center; margin:16px 0;"><div style="width:1px; height:24px; background:linear-gradient(var(--lh-slate-700),var(--lh-cobalt-500));"></div></div>
+            <div style="padding:18px 20px; border-radius:var(--radius-md); background:var(--surface-raised); border:1px solid var(--border-strong); text-align:center;">
+              <div class="fn" style="font-size:10px;">Structured</div>
+              <div style="font-family:var(--font-display); font-weight:300; font-size:20px; margin-top:6px;">Knowledge Base &amp; Retrieval</div>
+            </div>
+            <div style="display:flex; justify-content:center; margin:16px 0;"><div style="width:1px; height:24px; background:linear-gradient(var(--lh-slate-700),var(--lh-cobalt-500));"></div></div>
+            <div style="padding:18px 20px; border-radius:var(--radius-md); background:var(--lh-glass-fill-cobalt); border:1px solid var(--border-lit); box-shadow:var(--glow-md); text-align:center;">
+              <div class="fn" style="font-size:10px; color:var(--lh-cobalt-100);">Answers with company context</div>
+              <div style="font-family:var(--font-display); font-weight:300; font-size:22px; margin-top:6px; color:var(--lh-cobalt-100);">The AI Mind</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 14 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 15 · THE COMPANY DATABASE ============ -->
+  <section data-label="Company Database" class="pg grid-ov">
+    <div class="ghostnum">08</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>The Company Database</div>
+        <div class="fn">The memory of the business</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:16ch;">The database becomes the <b>memory of the business.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">A business cannot use AI properly if its information is scattered. Lean Hippo helps structure the company's data so information can be tracked, searched, reported, and used by the AI layer.</p>
+          <p class="anim d3" style="margin-top:18px; font-size:15.5px; color:var(--text-muted); line-height:1.55; max-width:50ch;">Without a structured database, AI has no reliable business memory. With one, the system can retrieve context, produce summaries, detect patterns, and support better decisions.</p>
+          <p class="anim d4" style="margin-top:20px; font-size:16px; color:var(--text-primary);">The business <span class="accentline">stops forgetting.</span></p>
+        </div>
+        <div class="glass anim d2" style="height:466px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:24px; display:flex; flex-direction:column;">
+            <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div class="fn" style="color:var(--lh-cobalt-100);">Structured records</div>
+              <span class="chip">15 tables</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; flex:1; align-content:start;">
+              <span class="dbcell">Customers</span><span class="dbcell">Suppliers</span><span class="dbcell">Staff roles</span>
+              <span class="dbcell">Tasks</span><span class="dbcell lit">Approvals</span><span class="dbcell">Expenses</span>
+              <span class="dbcell">Stock records</span><span class="dbcell">Purchases</span><span class="dbcell">Enquiries</span>
+              <span class="dbcell">SOPs</span><span class="dbcell">Documents</span><span class="dbcell">Meeting notes</span>
+              <span class="dbcell">Decisions</span><span class="dbcell">Recurring issues</span><span class="dbcell">Reports</span>
+            </div>
+            <div class="signal" style="margin-top:16px;">
+              <span class="stage">Records</span><span class="link"></span>
+              <span class="stage lit">Retrieval layer</span><span class="link"></span>
+              <span class="stage">The Mind</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 15 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 16 · HUMAN APPROVAL ============ -->
+  <section data-label="Human Approval" class="pg graphite grid-ov">
+    <div class="ghostnum">09</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>Human Approval &amp; Auditability</div>
+        <div class="fn">Automation removes drudgery, not authority</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:16ch;">The business gets capacity. <b>You keep control.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">The system can remind, draft, route, detect, summarize, record, and escalate. Critical actions remain controlled through approval layers, permissions, and audit history.</p>
+          <div class="anim d3" style="margin-top:22px; display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+            <div>
+              <div class="fn" style="margin-bottom:13px;">What stays controlled</div>
+              <ul class="list">
+                <li>Financial approvals</li><li>Supplier commitments</li>
+                <li>Customer-sensitive replies</li><li>External messages &amp; posts</li>
+                <li>Payment actions</li><li>Data deletion</li>
+              </ul>
+            </div>
+            <div>
+              <div class="fn" style="margin-bottom:13px;">Safety features</div>
+              <ul class="list plain">
+                <li>Approval before critical actions</li><li>Action logs</li>
+                <li>Permission levels</li><li>Review queues</li>
+                <li>Manual override</li><li>No blind financial movement</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="glass lit anim d2" style="height:440px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:26px; display:flex; flex-direction:column; justify-content:center; gap:22px;">
+            <div class="fn" style="color:var(--lh-cobalt-100);">Every critical action passes the gate</div>
+            <div style="display:flex; flex-direction:column; gap:0;">
+              <div class="vault-step">Draft <span class="vmeta">AI assists</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step lit">Review <span class="vmeta">human gate</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step lit">Approve <span class="vmeta">human authority</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step">Execute <span class="vmeta">system acts</span></div>
+              <div class="vconn"></div>
+              <div class="vault-step">Record <span class="vmeta">audit history</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 16 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 17 · WORKS WITH WHAT YOU USE ============ -->
+  <section data-label="Works With" class="pg grid-ov">
+    <div class="ghostnum">10</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>Works With What You Already Use</div>
+        <div class="fn">Adapt to the business first</div>
+      </div>
+      <div class="two-col wide-l" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:15ch;">We connect the business <b>you already have.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">Lean Hippo can work around the tools, files, chats, records, and workflows already in place, then improve the architecture around them.</p>
+          <p class="anim d3" style="margin-top:18px; font-size:15.5px; color:var(--text-muted); line-height:1.55; max-width:50ch;">Some systems connect through direct integrations. Others use structured imports, forms, exports, manual approval queues, or lightweight internal tools. The point is not to replace everything immediately — it is to create control around the way the business already operates.</p>
+          <p class="anim d4" style="margin-top:18px; font-size:16.5px; color:var(--text-primary);">The system adapts to the business <span class="accentline">before the business is asked to adapt to the system.</span></p>
+        </div>
+        <div class="glass anim d2" style="height:474px;">
+          <div class="edge"></div>
+          <div style="position:absolute; inset:0; padding:24px; display:flex; flex-direction:column;">
+            <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:16px;">Inputs we can work with</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; flex:1; align-content:start;">
+              <span class="dbcell">Instagram</span><span class="dbcell">Facebook</span>
+              <span class="dbcell">POS</span><span class="dbcell">Website forms</span>
+              <span class="dbcell">Spreadsheets</span><span class="dbcell">Accounting tools</span>
+              <span class="dbcell">Forms</span><span class="dbcell">Inventory records</span>
+              <span class="dbcell">Staff checklists</span><span class="dbcell">Supplier records</span>
+              <span class="dbcell">Customer databases</span><span class="dbcell">Google Drive</span>
+              <span class="dbcell">PDFs</span><span class="dbcell">Meeting notes</span>
+              <span class="dbcell">Email records</span><span class="dbcell">Manual logs</span>
+            </div>
+            <div class="signal" style="margin-top:16px;">
+              <span class="stage">Existing inputs</span><span class="link"></span>
+              <span class="stage lit">Lean Hippo layer</span><span class="link"></span>
+              <span class="stage">Nervous system</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 17 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 18 · CUSTOM SYSTEMS ============ -->
+  <section data-label="Custom Systems" class="pg graphite grid-ov">
+    <canvas class="net lh-network" data-density="0.6" data-formed="1" data-seed="9" data-core="1" style="opacity:.3;"></canvas>
+    <div style="position:absolute; inset:0; background:linear-gradient(90deg, rgba(6,7,8,.95) 40%, rgba(6,7,8,.4) 100%); z-index:1;"></div>
+    <div class="ghostnum">11</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>Custom Systems</div>
+        <div class="fn">Built around how you operate</div>
+      </div>
+      <div class="two-col" style="margin-top:6px;">
+        <div class="stack">
+          <h1 class="h1 sm anim d1" style="max-width:18ch;">When ready-made is not enough, we build around <b>how you operate.</b></h1>
+          <p class="body anim d2" style="margin-top:20px;">Some businesses need custom workflows, dashboards, approval logic, CRM flows, reporting systems, integrations, internal tools, or AI assistants. Lean Hippo builds the layer around the business instead of forcing the business into generic software.</p>
+          <p class="anim d4" style="margin-top:22px; font-size:16px; color:var(--text-primary);">The system fits the business, <span class="accentline">not the other way around.</span></p>
+        </div>
+        <div class="anim d2" style="display:grid; grid-template-columns:1fr 1fr; gap:9px; align-content:center;">
+          <span class="dbcell">Custom dashboards</span><span class="dbcell">Custom approvals</span>
+          <span class="dbcell">Custom CRM flows</span><span class="dbcell">Custom reporting</span>
+          <span class="dbcell">Internal tools</span><span class="dbcell">Team task systems</span>
+          <span class="dbcell lit">AI assistants</span><span class="dbcell">Procurement systems</span>
+          <span class="dbcell">Document processing</span><span class="dbcell">Messaging workflows</span>
+          <span class="dbcell">Management copilots</span><span class="dbcell">Tool integrations</span>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 18 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 19 · HOW ENGAGEMENT WORKS ============ -->
+  <section data-label="Engagement" class="pg grid-ov">
+    <div class="ghostnum">12</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>How Engagement Works</div>
+        <div class="fn">The system grows in controlled stages</div>
+      </div>
+      <h1 class="h1 sm anim d1" style="margin-top:14px; max-width:18ch;">How we <b>build the system.</b></h1>
+      <div class="anim d2" style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:34px;">
+        <div class="step"><div class="stepn">01</div><div class="steph">Bottleneck Report</div><div class="stepd">Diagnose where control is weakest.</div></div>
+        <div class="step"><div class="stepn">02</div><div class="steph">System Map</div><div class="stepd">Decide what should connect first.</div></div>
+        <div class="step"><div class="stepn">03</div><div class="steph">Data &amp; Process Onboarding</div><div class="stepd">Collect the data, documents, workflows, rules, and operating knowledge needed to build the system.</div></div>
+        <div class="step"><div class="stepn">04</div><div class="steph">First Organ</div><div class="stepd">Install the highest-impact system.</div></div>
+        <div class="step"><div class="stepn">05</div><div class="steph">Team Training &amp; Approval Rules</div><div class="stepd">Train staff, define ownership, and set approval boundaries.</div></div>
+        <div class="step lit"><div class="stepn">06</div><div class="steph">Review &amp; Extension</div><div class="stepd">Measure what changed and build the next organ.</div></div>
+      </div>
+    </div>
+    <div class="pageid">LH · 19 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 20 · WHAT CHANGES ============ -->
+  <section data-label="What Changes" class="pg graphite grid-ov">
+    <div class="ghostnum">13</div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>What Changes</div>
+        <div class="fn">The work gets somewhere to live</div>
+      </div>
+      <h1 class="h1 sm anim d1" style="margin-top:12px; max-width:20ch;">The business begins to <b>operate differently.</b></h1>
+      <div class="split anim d2" style="margin-top:26px;">
+        <div class="col before">
+          <h4 class="quiet">Before</h4>
+          <ul class="list plain" style="gap:13px;">
+            <li>Decisions wait</li><li>Enquiries get missed</li>
+            <li>Cash is checked late</li><li>Staff ask repeatedly</li>
+            <li>Supplier pricing is informal</li><li>Reports are delayed</li>
+            <li>Knowledge lives in people</li><li>AI has no company context</li>
+          </ul>
+        </div>
+        <div class="col after">
+          <h4 style="color:var(--lh-cobalt-100);">After</h4>
+          <ul class="list" style="gap:13px;">
+            <li>Decisions are routed</li><li>Enquiries are captured</li>
+            <li>Cash is traceable</li><li>Staff follow standards</li>
+            <li>Supplier flow is visible</li><li>Reports are live</li>
+            <li>Knowledge lives in the system</li><li>AI answers from business data</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="pageid">LH · 20 / 22</div>
+  </section>
+
+  <!-- ============ PAGE 21 · WHY LEANHIPPO ============ -->
+  <section data-label="Why Lean Hippo" class="pg grid-ov">
+    <canvas class="net lh-network" data-density="0.32" data-formed="0.7" data-seed="15" data-speed="0.6" style="opacity:.4;"></canvas>
+    <div style="position:absolute; inset:0; background:radial-gradient(100% 100% at 70% 50%, rgba(5,5,5,.6), rgba(5,5,5,.95)); z-index:1;"></div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row anim">
+        <div class="eyebrow"><span class="tick"></span>Why Lean Hippo</div>
+        <div class="fn">You are gaining a systems team</div>
+      </div>
+      <h1 class="h1 anim d1" style="margin-top:14px; max-width:20ch;">We do not sell technology. <b>We solve the problem underneath it.</b></h1>
+      <div class="anim d2" style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:40px;">
+        <div class="proof">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">01</div>
+          <div class="proofh">We have lived it.</div>
+          <div class="proofd">Built from real businesses, not theory. We understand messy operations, staff gaps, owner dependency, procurement leakage, and customer handling.</div>
+        </div>
+        <div class="proof">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">02</div>
+          <div class="proofh">We diagnose first.</div>
+          <div class="proofd">Every engagement starts with the Bottleneck Report, not a pre-decided tool.</div>
+        </div>
+        <div class="proof">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">03</div>
+          <div class="proofh">We build for control.</div>
+          <div class="proofd">The goal is not novelty. It is visibility, consistency, accountability, better decisions, and practical AI that actually understands the business.</div>
+        </div>
+        <div class="proof lit">
+          <div class="fn" style="color:var(--lh-cobalt-100); margin-bottom:10px;">04</div>
+          <div class="proofh">We keep humans in authority.</div>
+          <div class="proofd">AI can assist, summarize, draft, and detect. The business still decides.</div>
+        </div>
+      </div>
+      <p class="anim d3" style="margin-top:36px; font-family:var(--font-display); font-weight:300; font-size:22px; color:var(--text-primary);">You are not buying software. <span class="accentline">You are gaining a systems team.</span></p>
+    </div>
+    <div class="pageid">LH · 21 / 22</div>
+  </section>
+
+  <!--SLIDES-->
+
+  <!-- ============ PAGE 22 · CLOSE ============ -->
+  <section data-label="Close" class="pg grid-ov">
+    <canvas class="net lh-network" data-density="0.7" data-formed="1" data-seed="11" data-core="1" data-speed="1"></canvas>
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,5,.15) 0%, rgba(5,5,5,0) 34%, rgba(5,5,5,.6) 80%, rgba(5,5,5,.95) 100%); z-index:1;"></div>
+    <div class="pad" style="z-index:2;">
+      <div class="head-row">
+        <div class="eyebrow">The system, fully formed</div>
+        <div class="fn">Close · 22</div>
+      </div>
+      <div class="spacer"></div>
+      <h1 class="h1 lg anim d1" style="max-width:16ch;">See what is really <b>running your business.</b></h1>
+      <div class="row anim d2" style="margin-top:34px; gap:24px; align-items:center;">
+        <div style="display:inline-flex; align-items:center; gap:14px; padding:16px 26px; border-radius:var(--radius-md); background:var(--accent); color:#fff; box-shadow:var(--glow-lg), var(--shadow-edge-cobalt); font-weight:500; font-size:18px;">
+          Request the Bottleneck Report <span style="font-size:20px;">→</span>
+        </div>
+        <p class="lead" style="max-width:40ch; margin:0;">We start by finding where control is leaking, where information is scattered, and where AI can become useful.</p>
+      </div>
+      <div class="spacer"></div>
+      <div class="footmark" style="position:static; padding:0; margin-top:8px;">
+        <img src="../assets/logos/leanhippo-white.png" alt="Lean Hippo">
+        <span>Lean Hippo Systems · We build the systems businesses run on.</span>
+      </div>
+    </div>
+    <div class="pageid">LH · 22 / 22</div>
+  </section>
+
+</deck-stage>
+
+<script src="../assets/network.js"></script>
+<script src="deck-stage.js"></script>
+
+<!-- ===================== TWEAKS ===================== -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": ["#1F5EFF", "#AFC7FF", "#123B9F"],
+  "bodyScale": 1,
+  "headings": "ExtraLight",
+  "network": true,
+  "grid": true,
+  "coverEyebrow": "Connected business systems",
+  "coverSubtitle": "Control, visibility, automation, databases, and AI intelligence for businesses that are tired of running on memory."
+}/*EDITMODE-END*/;
+
+const ACCENTS = [
+  ["#1F5EFF", "#AFC7FF", "#123B9F"], // Cobalt (brand)
+  ["#2E8BFF", "#BBD9FF", "#1655B0"], // Azure
+  ["#3D5AFE", "#BAC4FF", "#1A2B8F"], // Indigo
+  ["#4B7BE0", "#C3D4FF", "#24467F"]  // Steel
+];
+
+function applyTweaks(t) {
+  const [a5, a1, a7] = t.accent || ACCENTS[0];
+  const s = Math.max(0.85, Math.min(1.25, t.bodyScale || 1));
+  const w = t.headings === "Light" ? 300 : 200;
+  const css = `
+    :root{
+      --lh-cobalt-500:${a5}; --accent:${a5};
+      --lh-cobalt-100:${a1};
+      --lh-cobalt-700:${a7};
+      --lh-cobalt-300: color-mix(in srgb, ${a5} 62%, #ffffff);
+      --lh-cobalt-600: color-mix(in srgb, ${a5} 82%, #000000);
+      --border-lit: color-mix(in srgb, ${a5} 35%, transparent);
+      --glow-sm: 0 0 0 1px color-mix(in srgb, ${a5} 18%, transparent);
+      --glow-md: 0 0 24px color-mix(in srgb, ${a5} 18%, transparent);
+      --glow-lg: 0 0 56px color-mix(in srgb, ${a5} 22%, transparent);
+      --glow-focus: 0 0 0 3px color-mix(in srgb, ${a5} 32%, transparent);
+    }
+    .pg .body{ font-size:${(18 * s).toFixed(1)}px; }
+    .pg .lead{ font-size:${(20 * s).toFixed(1)}px; }
+    .pg .list li{ font-size:${(16 * s).toFixed(1)}px; }
+    .pg .layer .ldesc, .pg .organ .odesc, .pg .step .sd{ font-size:${(15 * s).toFixed(1)}px; }
+    .pg .h1{ font-weight:${w}; }
+    body.tw-nonet canvas.lh-network{ display:none !important; }
+    body.tw-nogrid .grid-ov::before{ display:none !important; }
+  `;
+  let tag = document.getElementById("tw-overrides");
+  if (!tag) { tag = document.createElement("style"); tag.id = "tw-overrides"; document.head.appendChild(tag); }
+  tag.textContent = css;
+  document.body.classList.toggle("tw-nonet", !t.network);
+  document.body.classList.toggle("tw-nogrid", !t.grid);
+  // cover copy
+  document.querySelectorAll(".cover-wing").forEach(el => { el.textContent = t.coverEyebrow; });
+  const sub = document.querySelector(".pg .sub");
+  if (sub) sub.textContent = t.coverSubtitle;
+}
+
+function CatalogueTweaks() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  React.useEffect(() => { applyTweaks(t); }, [t]);
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Brand" />
+      <TweakColor label="Accent" value={t.accent} options={ACCENTS}
+                  onChange={(v) => setTweak("accent", v)} />
+      <TweakSection label="Typography" />
+      <TweakSlider label="Body text" value={t.bodyScale} min={0.85} max={1.25} step={0.05}
+                   unit="×" onChange={(v) => setTweak("bodyScale", v)} />
+      <TweakRadio label="Headings" value={t.headings} options={["ExtraLight", "Light"]}
+                  onChange={(v) => setTweak("headings", v)} />
+      <TweakSection label="Atmosphere" />
+      <TweakToggle label="Network background" value={t.network}
+                   onChange={(v) => setTweak("network", v)} />
+      <TweakToggle label="Technical grid" value={t.grid}
+                   onChange={(v) => setTweak("grid", v)} />
+      <TweakSection label="Cover copy" />
+      <TweakText label="Eyebrow" value={t.coverEyebrow}
+                 onChange={(v) => setTweak("coverEyebrow", v)} />
+      <TweakText label="Subtitle" value={t.coverSubtitle} multiline
+                 onChange={(v) => setTweak("coverSubtitle", v)} />
+    </TweaksPanel>
+  );
+}
+ReactDOM.createRoot(document.getElementById("tweaks-root")).render(<CatalogueTweaks />);
+</script>
+<script>
+  (function () {
+    function markAll() { document.querySelectorAll('deck-stage > section').forEach(function (s) { s.setAttribute('data-deck-active', ''); }); }
+    function ready() { markAll(); var fonts = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve(); Promise.resolve(fonts).then(function () { setTimeout(function () { markAll(); window.print(); }, 600); }); }
+    if (document.readyState === 'complete') ready(); else window.addEventListener('load', ready);
+  })();
+</script>
+</body>
+</html>

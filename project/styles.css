@@ -1,0 +1,13 @@
+/* ============================================================
+   LeanHippo Systems & Tech — Design System
+   Root entry point. Consumers link THIS file only.
+   Imports the full token + font closure. No rules live here.
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/effects.css";

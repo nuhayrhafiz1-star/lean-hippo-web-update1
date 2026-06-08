@@ -1,0 +1,57 @@
+/* ============================================================
+   LeanHippo Systems — Typography Tokens
+   One typeface: Klik. Light weights carry display; Regular &
+   Medium carry UI and body. Mono is used only for data, codes,
+   metrics, and system labels (see --font-mono note below).
+   ============================================================ */
+
+:root {
+  /* ---- Families ---- */
+  --font-display: "Klik", "Helvetica Neue", Arial, sans-serif;
+  --font-body:    "Klik", "Helvetica Neue", Arial, sans-serif;
+  /* Mono companion for data tables, IDs, metrics, system labels.
+     Shipped via CDN (JetBrains Mono) — substitute, see readme. */
+  --font-mono:    "JetBrains Mono", "SFMono-Regular", ui-monospace, "Roboto Mono", monospace;
+
+  /* ---- Weights (Klik tops out at Medium 500) ---- */
+  --fw-thin:       100; /* @kind font */
+  --fw-extralight: 200; /* @kind font */
+  --fw-light:      300; /* @kind font */
+  --fw-regular:    400; /* @kind font */
+  --fw-medium:     500; /* @kind font */
+
+  /* ---- Type scale (px values; rem-friendly) ----
+     Display tiers run extralight; UI/body run regular/medium. */
+  --fs-display-xxl: 112px;  /* cover headline */
+  --fs-display-xl:  84px;
+  --fs-display-lg:  64px;
+  --fs-display-md:  48px;   /* page headlines */
+  --fs-display-sm:  36px;
+  --fs-title-lg:    28px;
+  --fs-title-md:    22px;
+  --fs-title-sm:    18px;
+  --fs-body-lg:     18px;
+  --fs-body:        16px;
+  --fs-body-sm:     14px;
+  --fs-caption:     13px;
+  --fs-micro:       11px;   /* tracked labels, eyebrows */
+
+  /* ---- Line heights ---- */
+  --lh-tight:    1.02; /* @kind other */  /* large display */
+  --lh-snug:     1.14; /* @kind other */  /* titles */
+  --lh-normal:   1.5; /* @kind other */   /* body */
+  --lh-relaxed:  1.65; /* @kind other */  /* long-form body */
+
+  /* ---- Letter spacing ---- */
+  --ls-tight:    -0.025em; /* @kind other */  /* large display */
+  --ls-snug:     -0.012em; /* @kind other */  /* titles */
+  --ls-normal:   0em; /* @kind other */
+  --ls-wide:     0.04em; /* @kind other */
+  --ls-label:    0.18em; /* @kind other */    /* eyebrows / system labels */
+  --ls-label-xl: 0.28em; /* @kind other */    /* oversized tracked labels */
+
+  /* ---- Semantic roles ---- */
+  --type-eyebrow-weight: var(--fw-regular); /* @kind font */
+  --type-eyebrow-size:   var(--fs-micro);
+  --type-eyebrow-track:  var(--ls-label); /* @kind other */
+}
