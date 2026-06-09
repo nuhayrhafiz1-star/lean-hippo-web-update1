@@ -8,6 +8,8 @@ const WINGS = [
   {
     key: "systems",
     route: "systems" as const,
+    accent: "cobalt" as const,
+    cta: "Enter Business Systems",
     num: "Wing 01",
     icon: "systems",
     title: "Business Systems",
@@ -17,6 +19,8 @@ const WINGS = [
   {
     key: "marketing",
     route: "growth" as const,
+    accent: "orange" as const,
+    cta: "Enter Growth Systems",
     num: "Wing 02",
     icon: "megaphone",
     title: "Marketing",
@@ -26,6 +30,8 @@ const WINGS = [
   {
     key: "accounting",
     route: "accounting" as const,
+    accent: "green" as const,
+    cta: "Enter Accounting Services",
     num: "Wing 03",
     icon: "calc",
     title: "Accounting Services",
@@ -134,10 +140,13 @@ export function Landing() {
           <div className="wings">
             {WINGS.map((w) => {
               const live = w.status === "live";
+              const green = w.accent === "green";
+              const orange = w.accent === "orange";
+              const iconColor = green ? "#A8D8C2" : orange ? "#FFB98C" : "var(--lh-cobalt-100)";
               return (
                 <div
                   key={w.key}
-                  className={"wing " + (live ? "available" : "soon")}
+                  className={"wing " + (live ? "available" : "soon") + (green ? " wing-acc" : "") + (orange ? " wing-mkt" : "")}
                   onClick={live ? () => go(w.route) : () => openBooking("bottleneck")}
                 >
                   <div className="edge" />
@@ -149,14 +158,14 @@ export function Landing() {
                     </span>
                   </div>
                   <div className="wicon">
-                    <Icon name={w.icon} size={26} color="var(--lh-cobalt-100)" />
+                    <Icon name={w.icon} size={26} color={iconColor} />
                   </div>
                   <div className="wtitle">{w.title}</div>
                   <div className="wdesc">{w.desc}</div>
                   <div className="wfoot">
                     {live ? (
                       <span className="btn btn-primary" style={{ pointerEvents: "none" }}>
-                        Enter Business Systems <Icon name="arrowUR" size={16} color="#fff" />
+                        {w.cta} <Icon name="arrowUR" size={16} color="#fff" />
                       </span>
                     ) : (
                       <span className="btn btn-secondary" style={{ pointerEvents: "none" }}>
