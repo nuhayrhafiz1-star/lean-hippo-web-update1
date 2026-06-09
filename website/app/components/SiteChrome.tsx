@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChromeContext, type BookingService } from "./chrome-context";
+import { ChromeContext, type BookingService, type SiteRoute } from "./chrome-context";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
 import { MindFab, MindPanel } from "./MindPlus";
@@ -43,7 +43,13 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     service: "bottleneck",
   });
 
-  const route: "home" | "systems" = pathname?.startsWith("/business-systems") ? "systems" : "home";
+  const route: SiteRoute = pathname?.startsWith("/business-systems")
+    ? "systems"
+    : pathname?.startsWith("/accounting")
+      ? "accounting"
+      : pathname?.startsWith("/growth")
+        ? "growth"
+        : "home";
 
   const openBooking = useCallback((service?: BookingService) => {
     setBooking({ open: true, service: service || "bottleneck" });
@@ -52,9 +58,16 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const openMind = useCallback(() => setMindOpen(true), []);
 
   const go = useCallback(
-    (r: "home" | "systems", anchor?: string) => {
-      const path = r === "systems" ? "/business-systems" : "/";
-      const samePage = (r === "systems") === pathname?.startsWith("/business-systems");
+    (r: SiteRoute, anchor?: string) => {
+      const path =
+        r === "systems"
+          ? "/business-systems"
+          : r === "accounting"
+            ? "/accounting"
+            : r === "growth"
+              ? "/growth"
+              : "/";
+      const samePage = pathname === path || (path === "/" && pathname === "/");
       if (samePage) {
         if (anchor) {
           if (!scrollToAnchor(anchor, mobile)) {
@@ -81,6 +94,18 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, mobile]);
 
+  // Page-scoped theme hooks: the Accounting page re-skins the nav (route-accounting)
+  // and the Growth page does the same (route-marketing), per the page stylesheets.
+  useEffect(() => {
+    const b = document.body.classList;
+    b.toggle("route-accounting", route === "accounting");
+    b.toggle("route-marketing", route === "growth");
+    return () => {
+      b.remove("route-accounting");
+      b.remove("route-marketing");
+    };
+  }, [route]);
+
   // Close overlays on Escape.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -97,7 +122,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     <ChromeContext.Provider value={{ openBooking, openMind, go }}>
       <Nav route={route} mobile={mobile} openBooking={openBooking} openMind={openMind} go={go} />
       {children}
-      <Footer />
+      <Footer route={route} />
       <MindFab onClick={openMind} />
       <MindPanel open={mindOpen} onClose={() => setMindOpen(false)} openBooking={openBooking} />
       <BookingModal open={booking.open} onClose={closeBooking} initialService={booking.service} />

@@ -1,17 +1,18 @@
 "use client";
 
-import { useChrome } from "./chrome-context";
+import { useChrome, type SiteRoute } from "./chrome-context";
 
-export function Footer() {
+export function Footer({ route = "home" }: { route?: SiteRoute }) {
   const { go, openBooking } = useChrome();
+  const acct = route === "accounting";
   return (
-    <footer className="footer">
+    <footer className={"footer" + (acct ? " footer-acc" : "")}>
       <div className="wrap">
         <div className="cols">
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logos/leanhippo-white.png"
+              src={acct ? "/logos/leanhippo-charcoal.png" : "/logos/leanhippo-white.png"}
               alt="Lean Hippo Systems & Tech"
               width={256}
               height={64}
@@ -24,8 +25,8 @@ export function Footer() {
           <div>
             <div className="ftitle">Wings</div>
             <span className="flink" onClick={() => go("systems")}>Business Systems</span>
-            <span className="flink" onClick={() => go("home", "wings")}>Marketing</span>
-            <span className="flink" onClick={() => go("home", "wings")}>Accounting Services</span>
+            <span className="flink" onClick={() => go("growth")}>Marketing</span>
+            <span className="flink" onClick={() => go("accounting")}>Accounting Services</span>
           </div>
           <div>
             <div className="ftitle">Business Systems</div>

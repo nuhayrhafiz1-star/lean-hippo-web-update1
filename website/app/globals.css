@@ -575,3 +575,648 @@ body.mobile .book-h { font-size: 21px; }
   .book-cal { grid-template-columns: repeat(4, 1fr); }
   .book-pip .bp-l { display: none; }
 }
+
+
+/* ============================================================
+   PAGE: Accounting & Financial Services (scoped, from Claude Design handoff)
+   ============================================================ */
+/* ============================================================
+   LeanHippo — Accounting & Financial Services  (PAGE-SCOPED)
+   ------------------------------------------------------------
+   Built on the SAME design-system tokens, typography, spacing,
+   buttons, glass surfaces and component rhythm as the website
+   (styles.css + site.css). NOTHING here leaks past the page
+   wrapper. The ONLY brand change is a scoped accent re-map:
+   cobalt  →  deep green  (the accounting identity colour),
+   with sage + off-white as supporting tones, per catalogue.
+   Every override lives under .accounting-services-page.
+   ============================================================ */
+
+.accounting-services-page {
+  /* ---- Deep-green accent ramp (the accounting identity, this page only) ---- */
+  --acc-green-050:  #E7F3EC;
+  --acc-green-100:  #A8D8C2;   /* pale sage — fills, soft chips */
+  --acc-green-300:  #4FB488;   /* hover lift */
+  --acc-green-500:  #1B8B60;   /* PRIMARY accounting green */
+  --acc-green-600:  #15784F;   /* pressed / labels on light */
+  --acc-green-700:  #0E5238;   /* deep forest — headings accent, gradients */
+  --acc-green-900:  #08311F;   /* deepest — text on pale green */
+  --acc-sage:       #8FB7A4;   /* muted sage */
+
+  /* ---- Cream / paper canvas (LIGHT theme) ---- */
+  --acc-cream:      #EFEBDF;   /* PRIMARY page backdrop — warm cream */
+  --acc-cream-2:    #E7E2D3;   /* deeper cream — section tints */
+  --acc-paper:      #FBFAF3;   /* near-white card */
+  --acc-paper-2:    #F5F2E8;   /* raised cream */
+  --acc-ink:        #16241D;   /* deep forest near-black — primary text */
+
+  /* ---- Re-map the cobalt tokens shared CSS references → green ---- */
+  --lh-cobalt-100: var(--acc-green-600);   /* eyebrows / links / accents read dark on cream */
+  --lh-cobalt-300: var(--acc-green-300);
+  --lh-cobalt-500: var(--acc-green-500);
+  --lh-cobalt-600: var(--acc-green-600);
+  --lh-cobalt-700: var(--acc-green-700);
+  --lh-cobalt-900: var(--acc-green-900);
+
+  --accent:        var(--acc-green-500);
+  --accent-hover:  var(--acc-green-600);
+  --accent-press:  var(--acc-green-700);
+  --accent-deep:   var(--acc-green-700);
+  --accent-soft:   var(--acc-green-600);
+  --text-accent:   var(--acc-green-600);
+  --focus-ring:    var(--acc-green-500);
+
+  /* ---- Light surfaces ---- */
+  --bg-canvas:        var(--acc-cream);
+  --bg-base:          var(--acc-cream);
+  --surface-card:     var(--acc-paper);
+  --surface-raised:   var(--acc-paper-2);
+  --surface-inset:    #E4DECF;
+  --surface-glass:        rgba(255,255,255,0.58);
+  --surface-glass-strong: rgba(255,255,255,0.80);
+  --lh-glass-fill:        rgba(255,255,255,0.58);
+  --lh-glass-fill-strong: rgba(255,255,255,0.80);
+
+  /* ---- Text on cream ---- */
+  --text-primary:   var(--acc-ink);
+  --text-secondary: #3E4B43;
+  --text-muted:     #6A746B;
+  --text-faint:     #9AA298;
+  --text-inverse:   var(--acc-paper);
+
+  /* ---- Dark hairline borders for a light skeleton ---- */
+  --border-subtle:  rgba(20,40,30,.10);
+  --border-default: rgba(20,40,30,.16);
+  --border-strong:  rgba(20,40,30,.26);
+  --border-glass:   rgba(20,40,30,.12);
+  --border-lit:     rgba(27,139,96,.55);
+  --lh-glass-border:      rgba(20,40,30,.12);
+  --lh-glass-border-lit:  rgba(27,139,96,.55);
+
+  --lh-glass-fill-cobalt: rgba(27, 139, 96, 0.08);
+  --lh-line:        rgba(20,40,30,.06);
+  --lh-line-cobalt: rgba(27, 139, 96, 0.30);
+
+  /* ---- Soft, neutral elevation (light theme: shadows, not edge-light) ---- */
+  --shadow-sm:   0 1px 2px rgba(20,40,30,.06);
+  --shadow-md:   0 6px 18px rgba(20,40,30,.08);
+  --shadow-lg:   0 18px 44px rgba(20,40,30,.10);
+  --shadow-xl:   0 32px 80px rgba(20,40,30,.14);
+  --shadow-edge:        inset 0 1px 0 rgba(255,255,255,.75);
+  --shadow-edge-cobalt: inset 0 1px 0 rgba(27, 139, 96, 0.30);
+  --glow-sm:    0 0 0 1px rgba(27, 139, 96, 0.16);
+  --glow-md:    0 0 24px rgba(27, 139, 96, 0.12);
+  --glow-lg:    0 0 56px rgba(27, 139, 96, 0.16);
+  --glow-focus: 0 0 0 3px rgba(27, 139, 96, 0.28);
+
+  --lh-positive-dim: #DCEAE0;
+}
+
+/* shared CSS leaves .display with no colour, so it inherits the WHITE that
+   `body { color: var(--text-primary) }` computed before this wrapper remapped
+   the token — invisible on cream. Pin headings to green shades (never white). */
+.accounting-services-page .display { color: var(--acc-green-700); }
+.accounting-services-page .display b { color: var(--acc-green-500); }
+.accounting-services-page .display .cobalt { color: var(--acc-green-500); }
+
+/* selection + the few hardcoded glows in shared CSS, re-tinted green */
+.accounting-services-page ::selection { background: rgba(27, 139, 96, .26); }
+.accounting-services-page .organ .inc-list li::before { box-shadow: 0 0 7px rgba(27, 139, 96, .40); }
+.accounting-services-page .chip2 .dot,
+.accounting-services-page .pill.soon .dot { box-shadow: 0 0 8px rgba(27, 139, 96, .5); }
+
+/* shared white edge-lights are invisible on cream → make them dark hairlines */
+.accounting-services-page .glass .edge,
+.accounting-services-page .acc-col .edge,
+.accounting-services-page .acc-govcol .edge {
+  background: linear-gradient(90deg, transparent, rgba(20,40,30,.16), transparent); }
+.accounting-services-page .glass.lit .edge,
+.accounting-services-page .acc-govcol.lit .edge {
+  background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+
+/* cream paper canvas with a faint green cast at the top */
+.accounting-services-page {
+  background: radial-gradient(120% 80% at 50% -6%, #F4F1E6 0%, var(--acc-cream) 56%);
+}
+
+/* section background helpers (warm cream washes) */
+.acc-tint-l { background: linear-gradient(180deg, var(--acc-cream-2), var(--acc-cream)); }
+.acc-tint-r { background: radial-gradient(120% 100% at 82% 0%, #E9F2EC, var(--acc-cream)); }
+
+/* keep the dark global nav legible above the cream page (must beat .nav.scrolled) */
+body.route-accounting .nav { background: rgba(8,9,12,.72) !important;
+  backdrop-filter: var(--blur-md) !important; -webkit-backdrop-filter: var(--blur-md) !important;
+  border-bottom-color: rgba(255,255,255,.10) !important; }
+
+/* footer adopts the cream + sage theme on the accounting route (no black) */
+.footer.footer-acc { background: linear-gradient(180deg, #E7E2D3 0%, #D9E8DF 100%);
+  border-top: 1px solid #CBDDD2; }
+.footer.footer-acc .small { color: #3E4B43; }
+.footer.footer-acc .ftitle { color: #5F6E64; }
+.footer.footer-acc .flink { color: #3E4B43; }
+.footer.footer-acc .flink:hover { color: #15784F; }
+.footer.footer-acc .fn { color: #5F6E64; }
+.footer.footer-acc .legal { border-top-color: rgba(14,82,56,.16); }
+
+/* ---------- Landing page · Accounting wing (black + green) ----------
+   Scoped to the single .wing-acc card; Business Systems stays cobalt. */
+.wing.wing-acc:hover { border-color: rgba(43,168,118,.38);
+  box-shadow: 0 0 24px rgba(27,139,96,.18), var(--shadow-xl), var(--shadow-edge); }
+.wing.wing-acc .wicon { background: rgba(27,139,96,.10); border-color: rgba(43,168,118,.38);
+  box-shadow: 0 0 0 1px rgba(27,139,96,.18); }
+.wing.wing-acc .btn-primary { background: #1B8B60;
+  box-shadow: 0 0 24px rgba(27,139,96,.20), inset 0 1px 0 rgba(27,139,96,.28); }
+.wing.wing-acc .btn-primary:hover { background: #27A271; }
+
+/* ---------- HERO trust strip ---------- */
+.acc-trust { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px;
+  margin-top: 40px; padding-top: 26px; border-top: 1px solid var(--border-subtle); }
+.acc-trust .lbl { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--text-muted); }
+.acc-trust .sep { width: 5px; height: 5px; transform: rotate(45deg); background: var(--accent);
+  box-shadow: 0 0 7px rgba(27,139,96,.6); }
+
+/* ---------- Control-gap cards (Problem) ---------- */
+.acc-gaplist { list-style: none; margin: 26px 0 0; padding: 22px 0 0; border-top: 1px solid var(--border-subtle);
+  display: grid; gap: 0; }
+.acc-gaplist li { display: flex; align-items: flex-start; gap: 13px; padding: 12px 0;
+  font-size: 14.5px; line-height: 1.4; color: var(--text-secondary); }
+.acc-gaplist li::before { content: ""; width: 6px; height: 6px; margin-top: 6px; flex: 0 0 auto;
+  transform: rotate(45deg); background: var(--accent); box-shadow: 0 0 7px rgba(27,139,96,.55); }
+.acc-gaps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+.acc-gap { padding: 24px 24px 26px; border-radius: var(--radius-md); background: var(--surface-glass);
+  backdrop-filter: var(--blur-sm); -webkit-backdrop-filter: var(--blur-sm);
+  border: 1px solid var(--border-glass); box-shadow: var(--shadow-edge);
+  transition: border-color .2s, transform .2s; }
+.acc-gap:hover { border-color: var(--border-lit); transform: translateY(-3px); }
+.acc-gap .gn { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--text-faint); }
+.acc-gap .gt { font-size: 16.5px; line-height: 1.45; color: var(--text-primary); margin-top: 12px;
+  font-weight: 400; }
+
+/* ---------- Positioning: "is not" negations ---------- */
+.acc-nots { display: flex; flex-direction: column; gap: 10px; }
+.acc-not { display: flex; align-items: center; gap: 14px; font-family: var(--font-mono);
+  font-size: 14px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); }
+.acc-not .xx { width: 26px; height: 26px; flex: 0 0 auto; border-radius: var(--radius-sm);
+  display: grid; place-items: center; border: 1px solid var(--border-strong); color: var(--text-faint); }
+.acc-not s { text-decoration: line-through; text-decoration-color: var(--border-strong); }
+
+/* ---------- Reporting: stepped 4-up ---------- */
+.acc-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; counter-reset: flow; }
+.acc-flow .organ { position: relative; }
+/* numerals in mono (the DEMO Klik build mis-renders the digit 4) */
+.acc-num { font-family: var(--font-mono); font-weight: 300; font-size: 28px; letter-spacing: -.01em;
+  color: var(--accent-soft); line-height: 1; opacity: .9; }
+
+/* ---------- Payroll split (two control columns) ---------- */
+.acc-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.acc-col { padding: 32px 30px; border-radius: var(--radius-lg); background: var(--surface-glass);
+  backdrop-filter: var(--blur-md); -webkit-backdrop-filter: var(--blur-md);
+  border: 1px solid var(--border-glass); box-shadow: var(--shadow-lg), var(--shadow-edge); position: relative; overflow: hidden; }
+.acc-col .edge { position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,244,242,.14), transparent); }
+.acc-col .ck { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--accent-soft); }
+.acc-col .ch { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: -.01em;
+  color: var(--text-primary); margin-top: 10px; }
+.acc-col .clist { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 0; }
+.acc-col .clist li { display: flex; align-items: flex-start; gap: 13px; padding: 14px 0;
+  border-top: 1px solid var(--border-subtle); font-size: 15px; line-height: 1.45; color: var(--text-secondary); }
+.acc-col .clist li:first-child { border-top: none; }
+.acc-col .clist li .tk { width: 19px; height: 19px; flex: 0 0 auto; margin-top: 1px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--lh-glass-fill-cobalt); border: 1px solid var(--border-lit); }
+
+/* ---------- Tax: serious labelled rows ---------- */
+.acc-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.acc-row { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start;
+  padding: 22px 24px; border-radius: var(--radius-md); background: var(--surface-card);
+  border: 1px solid var(--border-default); box-shadow: var(--shadow-edge); transition: border-color .2s, background .2s; }
+.acc-row:hover { border-color: var(--border-lit); background: var(--lh-glass-fill-cobalt); }
+.acc-row .ri { width: 40px; height: 40px; flex: 0 0 auto; border-radius: var(--radius-sm); display: grid; place-items: center;
+  background: var(--surface-raised); border: 1px solid var(--border-strong); }
+.acc-row:hover .ri { border-color: var(--border-lit); }
+.acc-row .rk { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-soft); }
+.acc-row .rt { font-size: 17px; color: var(--text-primary); margin-top: 4px; }
+.acc-row .rd { font-size: 13.5px; line-height: 1.5; color: var(--text-muted); margin-top: 7px; }
+
+/* ---------- Compliance band (secretarial) ---------- */
+.acc-band { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+  border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden;
+  background: var(--surface-glass); backdrop-filter: var(--blur-sm); -webkit-backdrop-filter: var(--blur-sm); }
+.acc-bcell { padding: 28px 24px; border-left: 1px solid var(--border-subtle); transition: background .2s; }
+.acc-bcell:first-child { border-left: none; }
+.acc-bcell:hover { background: var(--lh-glass-fill-cobalt); }
+.acc-bcell .bi { width: 38px; height: 38px; border-radius: var(--radius-sm); display: grid; place-items: center;
+  background: var(--surface-raised); border: 1px solid var(--border-strong); margin-bottom: 18px; }
+.acc-bcell .bt { font-family: var(--font-display); font-weight: 400; font-size: 18px; color: var(--text-primary); letter-spacing: -.01em; }
+.acc-bcell .bd { font-size: 13px; line-height: 1.5; color: var(--text-muted); margin-top: 9px; }
+
+/* ---------- Entity formation timeline ---------- */
+.acc-stage { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--accent-soft); display: flex; align-items: center; gap: 12px; margin: 8px 0 18px; }
+.acc-stage .ln { flex: 1; height: 1px; background: var(--border-default); }
+.acc-tl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+.acc-tl.six { grid-template-columns: repeat(6, 1fr); }
+.acc-node { padding: 22px 20px; border-radius: var(--radius-md); background: var(--surface-glass);
+  backdrop-filter: var(--blur-sm); -webkit-backdrop-filter: var(--blur-sm);
+  border: 1px solid var(--border-glass); box-shadow: var(--shadow-edge); position: relative;
+  transition: border-color .2s, transform .2s; }
+.acc-node:hover { border-color: var(--border-lit); transform: translateY(-3px); }
+.acc-node .nd { width: 10px; height: 10px; transform: rotate(45deg); background: var(--accent);
+  box-shadow: 0 0 8px rgba(27,139,96,.6); margin-bottom: 16px; }
+.acc-node .nt { font-size: 15.5px; color: var(--text-primary); line-height: 1.3; }
+.acc-node .ndsc { font-size: 12.5px; line-height: 1.5; color: var(--text-muted); margin-top: 8px; }
+
+/* ---------- Corporate advisory — PALE-SAGE premium band ---------- */
+.acc-advisory {
+  background: linear-gradient(180deg, #E6F0E9 0%, #D9E8DF 100%);
+  border-top: 1px solid #CBDDD2; border-bottom: 1px solid #CBDDD2;
+  --text-primary: #14241C;
+  --text-secondary: #3A4A41;
+  --text-muted: #5F6E64;
+  --text-faint: #93A398;
+  --accent-soft: var(--acc-green-700);
+  --border-subtle: rgba(14,82,56,.12);
+  --border-default: rgba(14,82,56,.16);
+}
+.acc-advisory .display { color: #14241C; }
+.acc-advisory .display b { color: var(--acc-green-700); }
+.acc-advisory .eyebrow { color: var(--acc-green-700); }
+.acc-advisory .eyebrow .tick { background: rgba(14,82,56,.30); }
+.acc-advcards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 44px; }
+.acc-advcards.five { grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.acc-advcards.five .acc-advcard { padding: 28px 24px; }
+.acc-advcards.five .at { font-size: 19px; }
+.acc-advcard { background: #FBFCF9; border: 1px solid #D6E3DB; border-radius: var(--radius-lg);
+  padding: 34px 30px 32px; box-shadow: 0 1px 2px rgba(14,82,56,.05), 0 18px 40px rgba(14,82,56,.07);
+  transition: transform .25s var(--ease-out), box-shadow .25s, border-color .25s; }
+.acc-advcard:hover { transform: translateY(-5px); border-color: var(--acc-green-300);
+  box-shadow: 0 1px 2px rgba(14,82,56,.05), 0 26px 56px rgba(14,82,56,.14); }
+.acc-advcard .ai { width: 50px; height: 50px; border-radius: var(--radius-md); display: grid; place-items: center;
+  background: #E7F0EA; border: 1px solid #CFE0D5; margin-bottom: 24px; }
+.acc-advcard .ak { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--acc-green-600); }
+.acc-advcard .at { font-family: var(--font-display); font-weight: 400; font-size: 23px; letter-spacing: -.01em;
+  color: #1B2420; margin-top: 4px; }
+.acc-advcard .ad { font-size: 14.5px; line-height: 1.6; color: #4A5249; margin-top: 14px; }
+
+/* ---------- Audit / governance two-column ---------- */
+.acc-gov { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.acc-govcol { padding: 34px 32px; border-radius: var(--radius-lg); background: var(--surface-glass);
+  backdrop-filter: var(--blur-md); -webkit-backdrop-filter: var(--blur-md);
+  border: 1px solid var(--border-glass); box-shadow: var(--shadow-lg), var(--shadow-edge); position: relative; overflow: hidden; }
+.acc-govcol.lit { border-color: var(--border-lit); box-shadow: var(--glow-md), var(--shadow-lg), var(--shadow-edge);
+  background: linear-gradient(180deg, var(--lh-glass-fill-cobalt), var(--surface-glass)); }
+.acc-govcol .edge { position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,244,242,.14), transparent); }
+.acc-govcol.lit .edge { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.acc-govcol .gk { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-soft); }
+.acc-govcol .gh { font-family: var(--font-display); font-weight: 400; font-size: 23px; letter-spacing: -.01em; color: var(--text-primary); margin-top: 10px; }
+.acc-govlist { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 0; }
+.acc-govlist li { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-top: 1px solid var(--border-subtle);
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: .02em; color: var(--text-secondary); text-transform: uppercase; }
+.acc-govlist li:first-child { border-top: none; }
+.acc-govlist li::before { content: ""; width: 6px; height: 6px; flex: 0 0 auto; transform: rotate(45deg);
+  background: var(--accent); box-shadow: 0 0 7px rgba(27,139,96,.55); }
+
+/* ---------- How we work — 4-step process strip ---------- */
+.acc-process { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.acc-pstep { position: relative; padding: 0 26px; }
+.acc-pstep:first-child { padding-left: 0; }
+.acc-pstep::before { content: ""; position: absolute; left: 0; top: 7px; bottom: 0; width: 1px; background: var(--border-default); }
+.acc-pstep:first-child::before { display: none; }
+.acc-pstep .pn { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-soft); }
+.acc-pdot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--border-lit);
+  background: var(--lh-glass-fill-cobalt); display: grid; place-items: center; margin: 14px 0 18px; }
+.acc-pdot i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(27,139,96,.7); }
+.acc-pstep .ph { font-family: var(--font-display); font-weight: 400; font-size: 19px; color: var(--text-primary); letter-spacing: -.01em; }
+.acc-pstep .pd { font-size: 13.5px; line-height: 1.55; color: var(--text-muted); margin-top: 9px; }
+
+/* ---------- Why Lean Hippo — reason cards ---------- */
+.acc-why { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.acc-reason { padding: 28px 22px; border-radius: var(--radius-md); background: var(--surface-card);
+  border: 1px solid var(--border-default); box-shadow: var(--shadow-edge); transition: border-color .2s, background .2s, transform .2s; }
+.acc-reason:hover { border-color: var(--border-lit); background: var(--lh-glass-fill-cobalt); transform: translateY(-3px); }
+.acc-reason .ri2 { width: 40px; height: 40px; border-radius: var(--radius-sm); display: grid; place-items: center;
+  background: var(--surface-raised); border: 1px solid var(--border-strong); margin-bottom: 18px; }
+.acc-reason:hover .ri2 { border-color: var(--border-lit); }
+.acc-reason .rh { font-family: var(--font-display); font-weight: 400; font-size: 18px; letter-spacing: -.01em; color: var(--text-primary); line-height: 1.2; }
+.acc-reason .rd2 { font-size: 13px; line-height: 1.55; color: var(--text-muted); margin-top: 11px; }
+
+/* anchor offset so fixed nav doesn't cover section tops */
+.accounting-services-page [id] { scroll-margin-top: 96px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1080px) and (min-width: 861px) {
+  .accounting-services-page .acc-gaps,
+  .accounting-services-page .acc-flow,
+  .accounting-services-page .acc-rows,
+  .accounting-services-page .acc-advcards,
+  .accounting-services-page .acc-tl { grid-template-columns: 1fr 1fr; }
+  .accounting-services-page .acc-tl.six { grid-template-columns: repeat(3, 1fr); }
+  .accounting-services-page .acc-band { grid-template-columns: 1fr 1fr 1fr; }
+  .accounting-services-page .acc-why { grid-template-columns: 1fr 1fr 1fr; }
+  .accounting-services-page .acc-process { grid-template-columns: 1fr 1fr; gap: 28px 0; }
+}
+
+/* phones — driven by body.mobile (set by Site shell) */
+body.mobile .accounting-services-page .acc-gaps,
+body.mobile .accounting-services-page .acc-flow,
+body.mobile .accounting-services-page .acc-split,
+body.mobile .accounting-services-page .acc-rows,
+body.mobile .accounting-services-page .acc-band,
+body.mobile .accounting-services-page .acc-advcards,
+body.mobile .accounting-services-page .acc-gov,
+body.mobile .accounting-services-page .acc-process,
+body.mobile .accounting-services-page .acc-tl,
+body.mobile .accounting-services-page .acc-tl.six,
+body.mobile .accounting-services-page .acc-why { grid-template-columns: 1fr; }
+body.mobile .accounting-services-page .acc-band { border-radius: var(--radius-md); }
+body.mobile .accounting-services-page .acc-bcell { border-left: none; border-top: 1px solid var(--border-subtle); }
+body.mobile .accounting-services-page .acc-bcell:first-child { border-top: none; }
+body.mobile .accounting-services-page .acc-process { gap: 26px 0; }
+body.mobile .accounting-services-page .acc-pstep { padding: 0 0 0 22px; }
+body.mobile .accounting-services-page .acc-pstep::before { top: 0; }
+body.mobile .accounting-services-page [data-acc-2col] { grid-template-columns: 1fr !important; gap: 32px !important; }
+
+@media (max-width: 680px) {
+  .accounting-services-page .acc-gaps,
+  .accounting-services-page .acc-flow,
+  .accounting-services-page .acc-rows,
+  .accounting-services-page .acc-advcards,
+  .accounting-services-page .acc-tl,
+  .accounting-services-page .acc-tl.six,
+  .accounting-services-page .acc-why,
+  .accounting-services-page .acc-band { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
+   PAGE: Growth & Marketing (scoped, from Claude Design handoff)
+   ============================================================ */
+/* ============================================================
+   LeanHippo — Growth & Marketing  (PAGE-SCOPED)
+   ------------------------------------------------------------
+   Built on the SAME design-system tokens, typography, spacing,
+   buttons, glass surfaces and component rhythm as the website
+   (styles.css + site.css). NOTHING here leaks past the page
+   wrapper. The brand change is a scoped re-theme:
+   dark cobalt  →  LIGHT ORANGE canvas with branding-orange as
+   the primary colour, warm-dark text, and the branding gradient
+   used sparingly for energy. No black except the global header
+   and footer. MIND+ keeps its original cobalt orb everywhere.
+   Every override lives under .growth-marketing-page.
+   ============================================================ */
+
+.growth-marketing-page {
+  /* ---- Branding-orange ramp (the growth identity, this page only) ---- */
+  --gm-orange-050:  #FFF1E8;
+  --gm-orange-100:  #FFB98C;   /* pale highlight / fills */
+  --gm-orange-300:  #FF7A33;   /* hover lift */
+  --gm-orange-500:  #E85002;   /* PRIMARY branding orange */
+  --gm-orange-600:  #CD4406;   /* labels / links on light */
+  --gm-orange-700:  #9C3705;   /* deep — text, depth */
+  --gm-red:         #C10801;   /* branding gradient — deep */
+  --gm-flame:       #F16001;   /* branding gradient — bright */
+  --gm-cream:       #D9C3AB;   /* branding gradient — warm cream tail */
+
+  /* signature branding gradient (black → red → flame → cream) */
+  --gm-grad-brand:  linear-gradient(118deg, #1A0B03 0%, var(--gm-red) 32%, var(--gm-flame) 68%, var(--gm-cream) 100%);
+  --gm-grad-fire:   linear-gradient(135deg, var(--gm-flame) 0%, var(--gm-red) 100%);
+
+  /* ---- Light-orange paper canvas ---- */
+  --gm-bg:      #FBEDE1;   /* PRIMARY page backdrop — light warm orange */
+  --gm-bg-2:    #F6E0CE;   /* deeper — section tints */
+  --gm-paper:   #FFFBF7;   /* near-white warm card */
+  --gm-paper-2: #FBF1E8;   /* raised */
+  --gm-ink:     #2A1206;   /* deep roast — primary text */
+
+  /* ---- Re-map the cobalt tokens shared CSS references → orange ---- */
+  --lh-cobalt-100: var(--gm-orange-600);   /* eyebrows / links read dark on light */
+  --lh-cobalt-300: var(--gm-orange-300);
+  --lh-cobalt-500: var(--gm-orange-500);
+  --lh-cobalt-600: var(--gm-orange-600);
+  --lh-cobalt-700: var(--gm-orange-700);
+  --lh-cobalt-900: #2A0F03;
+
+  --accent:        var(--gm-orange-500);
+  --accent-hover:  var(--gm-orange-600);
+  --accent-press:  var(--gm-orange-700);
+  --accent-deep:   var(--gm-orange-700);
+  --accent-soft:   var(--gm-orange-600);
+  --text-accent:   var(--gm-orange-600);
+  --focus-ring:    var(--gm-orange-500);
+
+  /* ---- Light surfaces ---- */
+  --bg-canvas:        var(--gm-bg);
+  --bg-base:          var(--gm-bg);
+  --surface-card:     var(--gm-paper);
+  --surface-raised:   var(--gm-paper-2);
+  --surface-inset:    #F0E0D2;
+  --surface-glass:        rgba(255,255,255,0.60);
+  --surface-glass-strong: rgba(255,255,255,0.82);
+  --lh-glass-fill:        rgba(255,255,255,0.60);
+  --lh-glass-fill-strong: rgba(255,255,255,0.82);
+
+  /* ---- Warm-dark text on light orange ---- */
+  --text-primary:   var(--gm-ink);
+  --text-secondary: #5A4034;
+  --text-muted:     #8A6F60;
+  --text-faint:     #B79E8E;
+  --text-inverse:   var(--gm-paper);
+
+  /* ---- Warm-dark hairline borders (the skeleton) ---- */
+  --border-subtle:  rgba(60,24,8,.10);
+  --border-default: rgba(60,24,8,.16);
+  --border-strong:  rgba(60,24,8,.26);
+  --border-glass:   rgba(60,24,8,.12);
+  --border-lit:     rgba(232,80,2,.55);
+  --lh-glass-border:      rgba(60,24,8,.12);
+  --lh-glass-border-lit:  rgba(232,80,2,.55);
+
+  --lh-glass-fill-cobalt: rgba(232, 80, 2, 0.08);
+  --lh-line:        rgba(60,24,8,.06);
+  --lh-line-cobalt: rgba(232, 80, 2, 0.30);
+
+  /* ---- Soft, warm elevation (light theme: shadows, not edge-light) ---- */
+  --shadow-sm:   0 1px 2px rgba(60,24,8,.06);
+  --shadow-md:   0 6px 18px rgba(60,24,8,.08);
+  --shadow-lg:   0 18px 44px rgba(60,24,8,.10);
+  --shadow-xl:   0 32px 80px rgba(60,24,8,.14);
+  --shadow-edge:        inset 0 1px 0 rgba(255,255,255,.75);
+  --shadow-edge-cobalt: inset 0 1px 0 rgba(232, 80, 2, 0.30);
+  --glow-sm:    0 0 0 1px rgba(232, 80, 2, 0.16);
+  --glow-md:    0 0 24px rgba(232, 80, 2, 0.14);
+  --glow-lg:    0 0 56px rgba(232, 80, 2, 0.18);
+  --glow-focus: 0 0 0 3px rgba(232, 80, 2, 0.30);
+
+  --lh-positive-dim: #163A28;
+}
+
+/* shared CSS leaves .display with no colour, so it inherits the WHITE that
+   `body { color: var(--text-primary) }` computed before this wrapper remapped
+   the token — invisible on light orange. Pin headings to orange (never white). */
+.growth-marketing-page .display { color: var(--gm-orange-600); }
+.growth-marketing-page .display b { color: var(--gm-red); }
+.growth-marketing-page .display .cobalt { color: var(--gm-red); }
+.growth-marketing-page .accent { color: var(--gm-orange-600); }
+
+/* selection + the hardcoded glows in shared CSS, re-tinted orange */
+.growth-marketing-page ::selection { background: rgba(232, 80, 2, .26); }
+.growth-marketing-page .organ .inc-list li::before { box-shadow: 0 0 7px rgba(232, 80, 2, .40); }
+.growth-marketing-page .chip2 .dot { box-shadow: 0 0 8px rgba(232, 80, 2, .5); }
+
+/* shared white edge-lights are invisible on light → dark hairlines */
+.growth-marketing-page .glass .edge,
+.growth-marketing-page .gm-col .edge,
+.growth-marketing-page .gm-prod .edge {
+  background: linear-gradient(90deg, transparent, rgba(60,24,8,.16), transparent); }
+.growth-marketing-page .glass.lit .edge,
+.growth-marketing-page .gm-col.lit .edge {
+  background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+
+/* light-orange paper canvas with a faint flame cast at the top */
+.growth-marketing-page {
+  background: radial-gradient(120% 80% at 50% -6%, #FEF3EA 0%, var(--gm-bg) 56%);
+}
+.gm-tint-l { background: linear-gradient(180deg, var(--gm-bg-2), var(--gm-bg)); }
+.gm-tint-r { background: radial-gradient(120% 100% at 82% 0%, #FCE2CF, var(--gm-bg)); }
+
+/* keep the dark global nav legible above the light page (must beat .nav.scrolled) */
+body.route-marketing .nav { background: rgba(8,9,12,.72) !important;
+  backdrop-filter: var(--blur-md) !important; -webkit-backdrop-filter: var(--blur-md) !important;
+  border-bottom-color: rgba(255,255,255,.10) !important; }
+
+/* ---------- Landing page · Marketing wing (orange identity hint, dark landing) ----------
+   Scoped to the single .wing-mkt card; other wings keep their colour. */
+.wing.wing-mkt:hover { border-color: rgba(255,255,255,.5);
+  box-shadow: 0 0 26px rgba(232,80,2,.22), var(--shadow-xl), var(--shadow-edge); }
+.wing.wing-mkt .wicon { background: rgba(232,80,2,.12); border-color: rgba(255,160,110,.45);
+  box-shadow: 0 0 0 1px rgba(232,80,2,.20); }
+.wing.wing-mkt .btn-primary { background: #E85002;
+  box-shadow: 0 0 26px rgba(232,80,2,.28), inset 0 1px 0 rgba(255,255,255,.22); }
+.wing.wing-mkt .btn-primary:hover { background: #FF6418; }
+
+/* ---------- HERO trust strip ---------- */
+.gm-trust { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px;
+  margin-top: 38px; padding-top: 26px; border-top: 1px solid var(--border-subtle); }
+.gm-trust .lbl { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--text-muted); }
+.gm-trust .sep { width: 5px; height: 5px; transform: rotate(45deg); background: var(--accent);
+  box-shadow: 0 0 7px rgba(232,80,2,.45); }
+
+/* thin signature gradient rule */
+.gm-rule { height: 2px; border: none; border-radius: 2px; background: var(--gm-grad-brand);
+  margin: 0; opacity: .9; }
+
+/* ---------- MIND+ upgrade badge (keeps the original cobalt MIND+ feel) ---------- */
+.gm-badge { display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-mono);
+  font-size: 10.5px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
+  padding: 6px 13px 6px 7px; border-radius: var(--radius-pill); color: #1A4FE0;
+  background: rgba(31,94,255,.08); border: 1px solid rgba(31,94,255,.30); }
+button.gm-badge { cursor: pointer; transition: background .18s, border-color .18s, transform .12s; }
+button.gm-badge:hover { background: rgba(31,94,255,.14); border-color: rgba(31,94,255,.5); }
+button.gm-badge:active { transform: translateY(1px); }
+.gm-badge-lg { font-size: 13.5px; gap: 13px; padding: 12px 22px 12px 12px; box-shadow: 0 6px 20px rgba(31,94,255,.16); }
+.organ .gm-badge { margin-top: 16px; }
+/* MIND+ orb never recolours — pin the glyph + on this orange page back to cobalt */
+.growth-marketing-page .mind-orb .glyph .p { color: #AFC7FF; }
+
+/* ---------- Growth architecture pipeline ---------- */
+.gm-arch { position: relative; margin-top: 8px; padding: 40px 34px;
+  border-radius: var(--radius-xl); overflow: hidden;
+  background: linear-gradient(180deg, #FFF3EA, #FBE6D6);
+  border: 1px solid var(--border-default); box-shadow: var(--shadow-lg); }
+.gm-arch .edge { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gm-grad-brand); }
+.gm-flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+.gm-node { position: relative; flex: 1 1 0; min-width: 104px; padding: 18px 14px 16px;
+  border-radius: var(--radius-md); background: var(--gm-paper); border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm); transition: border-color .2s, transform .2s, box-shadow .2s; }
+.gm-node:hover { border-color: var(--border-lit); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.gm-node .gnk { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); }
+.gm-node .gnn { font-family: var(--font-display); font-weight: 400; font-size: 16px; letter-spacing: -.01em; color: var(--text-primary); margin-top: 7px; line-height: 1.15; }
+.gm-node .gdot { position: absolute; right: 12px; top: 14px; width: 6px; height: 6px; transform: rotate(45deg);
+  background: var(--accent); box-shadow: 0 0 8px rgba(232,80,2,.5); }
+.gm-node.intel { background: var(--gm-grad-fire); border-color: rgba(255,255,255,.5); box-shadow: 0 8px 22px rgba(232,80,2,.28); }
+.gm-node.intel .gnk { color: rgba(255,255,255,.85); }
+.gm-node.intel .gnn { color: #fff; }
+.gm-node.intel .gdot { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.8); }
+.gm-conn { flex: 0 0 auto; align-self: center; display: grid; place-items: center; color: var(--gm-orange-500); opacity: .9; }
+
+/* ---------- One-off vs Monthly split ---------- */
+.gm-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.gm-col { position: relative; padding: 34px 32px; border-radius: var(--radius-lg); background: var(--surface-card);
+  border: 1px solid var(--border-default); box-shadow: var(--shadow-md); overflow: hidden; }
+.gm-col.lit { border-color: var(--border-lit); background: linear-gradient(180deg, #FFF0E6, var(--gm-paper)); box-shadow: var(--glow-md), var(--shadow-md); }
+.gm-col .edge { position: absolute; top: 0; left: 0; right: 0; height: 1px; }
+.gm-col .ck { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-soft); }
+.gm-col .ch { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: -.01em; color: var(--text-primary); margin-top: 10px; }
+.gm-col .csub { font-size: 14px; line-height: 1.55; color: var(--text-muted); margin-top: 10px; }
+.gm-col .clist { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 0; }
+.gm-col .clist li { display: flex; align-items: flex-start; gap: 13px; padding: 13px 0; border-top: 1px solid var(--border-subtle);
+  font-size: 14.5px; line-height: 1.45; color: var(--text-secondary); }
+.gm-col .clist li:first-child { border-top: none; }
+.gm-col .clist li::before { content: ""; width: 6px; height: 6px; margin-top: 6px; flex: 0 0 auto; transform: rotate(45deg);
+  background: var(--accent); box-shadow: 0 0 7px rgba(232,80,2,.4); }
+
+/* ---------- Packages ---------- */
+.gm-pkgs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.gm-pkg { position: relative; padding: 34px 30px 32px; border-radius: var(--radius-lg);
+  background: var(--surface-card); border: 1px solid var(--border-default); box-shadow: var(--shadow-md);
+  display: flex; flex-direction: column; transition: border-color .25s, transform .25s, box-shadow .25s; overflow: hidden; }
+.gm-pkg:hover { transform: translateY(-4px); border-color: var(--border-lit); box-shadow: var(--shadow-lg); }
+.gm-pkg.feat { border-color: var(--gm-orange-300); background: linear-gradient(180deg, #FFF1E7, var(--gm-paper)); box-shadow: var(--glow-md), var(--shadow-lg); }
+.gm-pkg.feat .edge { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gm-grad-brand); }
+.gm-pkg .pkk { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.gm-pkg .pkname { font-family: var(--font-display); font-weight: 400; font-size: 26px; letter-spacing: -.012em; color: var(--text-primary); }
+.gm-pkg .pktag { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #fff;
+  padding: 4px 9px; border-radius: var(--radius-sm); background: var(--gm-grad-fire); }
+.gm-pkg .pkd { font-size: 14.5px; line-height: 1.6; color: var(--text-secondary); margin-top: 14px; }
+.gm-pkg .pkfor { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-soft); margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border-subtle); }
+
+/* ---------- How it works — 6-step process ---------- */
+.gm-process { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; }
+.gm-pstep { position: relative; padding: 0 22px; }
+.gm-pstep:first-child { padding-left: 0; }
+.gm-pstep::before { content: ""; position: absolute; left: 0; top: 7px; bottom: 0; width: 1px; background: var(--border-default); }
+.gm-pstep:first-child::before { display: none; }
+.gm-pstep .pn { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-soft); }
+.gm-pdot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--border-lit);
+  background: rgba(232,80,2,.14); display: grid; place-items: center; margin: 14px 0 18px; }
+.gm-pdot i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(232,80,2,.5); }
+.gm-pstep .ph { font-family: var(--font-display); font-weight: 400; font-size: 19px; color: var(--text-primary); letter-spacing: -.01em; }
+.gm-pstep .pd { font-size: 13px; line-height: 1.55; color: var(--text-muted); margin-top: 9px; }
+
+/* anchor offset so fixed nav doesn't cover section tops */
+.growth-marketing-page [id] { scroll-margin-top: 96px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1080px) and (min-width: 861px) {
+  .growth-marketing-page .gm-pkgs { grid-template-columns: 1fr 1fr; }
+  .growth-marketing-page .gm-process { grid-template-columns: 1fr 1fr 1fr; gap: 28px 0; }
+}
+
+/* phones — driven by body.mobile */
+body.mobile .growth-marketing-page .gm-split,
+body.mobile .growth-marketing-page .gm-pkgs,
+body.mobile .growth-marketing-page .gm-process { grid-template-columns: 1fr; }
+body.mobile .growth-marketing-page .gm-process { gap: 26px 0; }
+body.mobile .growth-marketing-page .gm-pstep { padding: 0 0 0 22px; }
+body.mobile .growth-marketing-page .gm-pstep::before { top: 0; }
+body.mobile .growth-marketing-page .gm-flow { flex-direction: column; }
+body.mobile .growth-marketing-page .gm-node { min-width: 0; }
+body.mobile .growth-marketing-page .gm-conn { transform: rotate(90deg); }
+body.mobile .growth-marketing-page [data-gm-2col] { grid-template-columns: 1fr !important; gap: 32px !important; }
+
+@media (max-width: 680px) {
+  .growth-marketing-page .gm-split,
+  .growth-marketing-page .gm-pkgs,
+  .growth-marketing-page .gm-process { grid-template-columns: 1fr; }
+  .growth-marketing-page .gm-flow { flex-direction: column; }
+  .growth-marketing-page .gm-conn { transform: rotate(90deg); }
+}

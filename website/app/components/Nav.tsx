@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
-import type { ChromeApi } from "./chrome-context";
+import type { ChromeApi, SiteRoute } from "./chrome-context";
 
 export function Nav({
   route,
@@ -11,7 +11,7 @@ export function Nav({
   openMind,
   go,
 }: {
-  route: "home" | "systems";
+  route: SiteRoute;
   mobile: boolean;
 } & ChromeApi) {
   const [scrolled, setScrolled] = useState(false);
@@ -45,8 +45,8 @@ export function Nav({
           <nav className="links" aria-label="Primary">
             <span className={"link" + (route === "home" ? " on" : "")} onClick={() => go("home")}>Home</span>
             <span className={"link" + (route === "systems" ? " on" : "")} onClick={() => go("systems")}>Business Systems</span>
-            <span className="link" onClick={() => go("home", "wings")}>Marketing</span>
-            <span className="link" onClick={() => go("home", "wings")}>Accounting</span>
+            <span className={"link" + (route === "growth" ? " on" : "")} onClick={() => go("growth")}>Marketing</span>
+            <span className={"link" + (route === "accounting" ? " on" : "")} onClick={() => go("accounting")}>Accounting</span>
             <span className="link" onClick={openMind}>MIND+</span>
           </nav>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -76,8 +76,8 @@ export function Nav({
           <nav className={"nav-menu" + (menuOpen ? " open" : "")} aria-label="Mobile">
             <span className={"nav-mlink" + (route === "home" ? " on" : "")} onClick={() => nav(() => go("home"))}>Home</span>
             <span className={"nav-mlink" + (route === "systems" ? " on" : "")} onClick={() => nav(() => go("systems"))}>Business Systems</span>
-            <span className="nav-mlink" onClick={() => nav(() => go("home", "wings"))}>Marketing</span>
-            <span className="nav-mlink" onClick={() => nav(() => go("home", "wings"))}>Accounting</span>
+            <span className={"nav-mlink" + (route === "growth" ? " on" : "")} onClick={() => nav(() => go("growth"))}>Marketing</span>
+            <span className={"nav-mlink" + (route === "accounting" ? " on" : "")} onClick={() => nav(() => go("accounting"))}>Accounting</span>
             <span className="nav-mlink" onClick={() => nav(openMind)}>MIND+</span>
             <button
               className="btn btn-primary btn-lg"

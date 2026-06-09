@@ -10,11 +10,13 @@ export type BookingService =
   | "ai"
   | "mind";
 
+export type SiteRoute = "home" | "systems" | "growth" | "accounting";
+
 export type ChromeApi = {
   openBooking: (service?: BookingService) => void;
   openMind: () => void;
-  /** Navigate to a route ("home" | "systems") with an optional anchor id. */
-  go: (route: "home" | "systems", anchor?: string) => void;
+  /** Navigate to a site route with an optional anchor id. */
+  go: (route: SiteRoute, anchor?: string) => void;
 };
 
 export const ChromeContext = createContext<ChromeApi | null>(null);

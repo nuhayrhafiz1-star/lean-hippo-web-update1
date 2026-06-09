@@ -7,6 +7,7 @@ import { useChrome } from "./chrome-context";
 const WINGS = [
   {
     key: "systems",
+    route: "systems" as const,
     num: "Wing 01",
     icon: "systems",
     title: "Business Systems",
@@ -15,19 +16,21 @@ const WINGS = [
   },
   {
     key: "marketing",
+    route: "growth" as const,
     num: "Wing 02",
     icon: "megaphone",
     title: "Marketing",
     desc: "Demand, brand, and growth systems that feed the same connected operating company. Built on the same control layer.",
-    status: "soon",
+    status: "live",
   },
   {
     key: "accounting",
+    route: "accounting" as const,
     num: "Wing 03",
     icon: "calc",
     title: "Accounting Services",
     desc: "Books, compliance, and financial visibility wired directly into your systems — so the numbers are never a surprise.",
-    status: "soon",
+    status: "live",
   },
 ];
 
@@ -135,7 +138,7 @@ export function Landing() {
                 <div
                   key={w.key}
                   className={"wing " + (live ? "available" : "soon")}
-                  onClick={live ? () => go("systems") : () => openBooking("bottleneck")}
+                  onClick={live ? () => go(w.route) : () => openBooking("bottleneck")}
                 >
                   <div className="edge" />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
