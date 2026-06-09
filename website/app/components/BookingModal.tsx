@@ -6,14 +6,19 @@ import type { BookingService } from "./chrome-context";
 
 /* ============================================================
    Booking — glassy multi-step Discovery Session request.
-   On submit, posts to Web3Forms, which emails the request to
-   the address tied to your access key (set it to contact@leanhippo.io).
-   The request CANNOT be submitted until every required field is valid.
+
+   Validation rules (a booking cannot be confirmed unless ALL pass):
+     • At least one Discovery Session is selected (multi-select).
+     • Full name and Business are non-empty.
+     • Email is well-formed AND ends in ".com".
+     • Phone is digits that match the selected country's length.
+   Invalid / empty fields are highlighted in red on submit.
+
+   On submit it POSTs to Web3Forms, which emails the full request
+   (including every selected session) to the address tied to your
+   access key — set that to contact@leanhippo.io.
    ============================================================ */
 
-// Web3Forms access key. Create one free at https://web3forms.com using
-// contact@leanhippo.io as the destination, then set it here or via the
-// NEXT_PUBLIC_WEB3FORMS_KEY environment variable at build time.
 const ACCESS_KEY =
   process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "REPLACE_WITH_WEB3FORMS_ACCESS_KEY";
 
@@ -52,6 +57,54 @@ const BOOK_SERVICES: { key: BookingService; icon: string; title: string; desc: s
   },
 ];
 
+/* Country dial codes + expected national mobile-number length range.
+   Bangladesh is the default. Israel is intentionally excluded. */
+const COUNTRIES: { iso: string; name: string; dial: string; min: number; max: number }[] = [
+  { iso: "BD", name: "Bangladesh", dial: "+880", min: 10, max: 10 },
+  { iso: "US", name: "United States", dial: "+1", min: 10, max: 10 },
+  { iso: "GB", name: "United Kingdom", dial: "+44", min: 10, max: 10 },
+  { iso: "IN", name: "India", dial: "+91", min: 10, max: 10 },
+  { iso: "PK", name: "Pakistan", dial: "+92", min: 10, max: 10 },
+  { iso: "AE", name: "United Arab Emirates", dial: "+971", min: 9, max: 9 },
+  { iso: "SA", name: "Saudi Arabia", dial: "+966", min: 9, max: 9 },
+  { iso: "QA", name: "Qatar", dial: "+974", min: 8, max: 8 },
+  { iso: "KW", name: "Kuwait", dial: "+965", min: 8, max: 8 },
+  { iso: "BH", name: "Bahrain", dial: "+973", min: 8, max: 8 },
+  { iso: "OM", name: "Oman", dial: "+968", min: 8, max: 8 },
+  { iso: "SG", name: "Singapore", dial: "+65", min: 8, max: 8 },
+  { iso: "MY", name: "Malaysia", dial: "+60", min: 9, max: 10 },
+  { iso: "AU", name: "Australia", dial: "+61", min: 9, max: 9 },
+  { iso: "CA", name: "Canada", dial: "+1", min: 10, max: 10 },
+  { iso: "NZ", name: "New Zealand", dial: "+64", min: 8, max: 10 },
+  { iso: "ZA", name: "South Africa", dial: "+27", min: 9, max: 9 },
+  { iso: "NG", name: "Nigeria", dial: "+234", min: 10, max: 10 },
+  { iso: "KE", name: "Kenya", dial: "+254", min: 9, max: 9 },
+  { iso: "EG", name: "Egypt", dial: "+20", min: 10, max: 10 },
+  { iso: "GH", name: "Ghana", dial: "+233", min: 9, max: 9 },
+  { iso: "LK", name: "Sri Lanka", dial: "+94", min: 9, max: 9 },
+  { iso: "NP", name: "Nepal", dial: "+977", min: 10, max: 10 },
+  { iso: "ID", name: "Indonesia", dial: "+62", min: 9, max: 11 },
+  { iso: "PH", name: "Philippines", dial: "+63", min: 10, max: 10 },
+  { iso: "TH", name: "Thailand", dial: "+66", min: 9, max: 9 },
+  { iso: "VN", name: "Vietnam", dial: "+84", min: 9, max: 10 },
+  { iso: "CN", name: "China", dial: "+86", min: 11, max: 11 },
+  { iso: "HK", name: "Hong Kong", dial: "+852", min: 8, max: 8 },
+  { iso: "JP", name: "Japan", dial: "+81", min: 10, max: 10 },
+  { iso: "KR", name: "South Korea", dial: "+82", min: 9, max: 10 },
+  { iso: "TR", name: "Türkiye", dial: "+90", min: 10, max: 10 },
+  { iso: "DE", name: "Germany", dial: "+49", min: 10, max: 11 },
+  { iso: "FR", name: "France", dial: "+33", min: 9, max: 9 },
+  { iso: "ES", name: "Spain", dial: "+34", min: 9, max: 9 },
+  { iso: "IT", name: "Italy", dial: "+39", min: 9, max: 10 },
+  { iso: "NL", name: "Netherlands", dial: "+31", min: 9, max: 9 },
+  { iso: "SE", name: "Sweden", dial: "+46", min: 7, max: 10 },
+  { iso: "CH", name: "Switzerland", dial: "+41", min: 9, max: 9 },
+  { iso: "IE", name: "Ireland", dial: "+353", min: 9, max: 9 },
+  { iso: "BR", name: "Brazil", dial: "+55", min: 10, max: 11 },
+  { iso: "MX", name: "Mexico", dial: "+52", min: 10, max: 10 },
+  { iso: "AR", name: "Argentina", dial: "+54", min: 10, max: 11 },
+];
+
 const BOOK_WINDOWS = [
   { key: "first", label: "First half", range: "9:00 AM – 12:00 PM" },
   { key: "second", label: "Second half", range: "2:30 PM – 5:30 PM" },
@@ -75,6 +128,11 @@ function nextBusinessDays(n: number) {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** National digits only, with any single trunk "0" prefix removed. */
+function phoneDigits(raw: string) {
+  return raw.replace(/\D/g, "").replace(/^0+/, "");
+}
+
 export function BookingModal({
   open,
   onClose,
@@ -85,9 +143,10 @@ export function BookingModal({
   initialService: BookingService;
 }) {
   const [step, setStep] = useState(0);
-  const [service, setService] = useState<BookingService>("bottleneck");
+  const [services, setServices] = useState<BookingService[]>(["bottleneck"]);
   const [date, setDate] = useState<Date | null>(null);
   const [window_, setWindow] = useState<string | null>(null);
+  const [iso, setIso] = useState("BD");
   const [form, setForm] = useState({ name: "", business: "", email: "", phone: "", notes: "" });
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -97,9 +156,10 @@ export function BookingModal({
   useEffect(() => {
     if (open) {
       setStep(0);
-      setService(initialService || "bottleneck");
+      setServices([initialService || "bottleneck"]);
       setDate(null);
       setWindow(null);
+      setIso("BD");
       setForm({ name: "", business: "", email: "", phone: "", notes: "" });
       setTouched(false);
       setSubmitting(false);
@@ -118,25 +178,52 @@ export function BookingModal({
     }
   }, [open]);
 
-  const svc = BOOK_SERVICES.find((s) => s.key === service) || BOOK_SERVICES[0];
+  const selectedServices = BOOK_SERVICES.filter((s) => services.includes(s.key));
   const win = BOOK_WINDOWS.find((w) => w.key === window_);
+  const country = COUNTRIES.find((c) => c.iso === iso) || COUNTRIES[0];
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const toggleService = (k: BookingService) =>
+    setServices((cur) => (cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k]));
 
-  const emailValid = EMAIL_RE.test(form.email.trim());
-  const detailsValid =
-    form.name.trim() !== "" && form.business.trim() !== "" && emailValid && form.phone.trim() !== "";
+  // ---- Field-level validity ----
+  const emailTrim = form.email.trim().toLowerCase();
+  const emailFormatOk = EMAIL_RE.test(emailTrim);
+  const emailIsCom = emailTrim.endsWith(".com");
+  const emailValid = emailFormatOk && emailIsCom;
+
+  const pd = phoneDigits(form.phone);
+  const phoneValid = pd.length >= country.min && pd.length <= country.max;
+
+  const nameValid = form.name.trim() !== "";
+  const businessValid = form.business.trim() !== "";
+  const servicesValid = services.length > 0;
+  const detailsValid = nameValid && businessValid && emailValid && phoneValid;
 
   const canNext =
     step === 0
-      ? !!service
+      ? servicesValid
       : step === 1
         ? date != null && window_ != null
         : step === 2
-          ? detailsValid
+          ? true // validated on click so we can reveal red fields
           : true;
 
-  const stepLabels = ["Session", "Preferred date", "Details", "Submitted"];
+  const stepLabels = ["Sessions", "Preferred date", "Details", "Submitted"];
   const dateStr = date ? `${DOW[date.getDay()]} ${date.getDate()} ${MON[date.getMonth()]}` : "—";
+  const servicesLabel =
+    selectedServices.length === 0
+      ? "No session selected"
+      : selectedServices.length === 1
+        ? selectedServices[0].title
+        : `${selectedServices.length} sessions selected`;
+
+  const phoneExpected =
+    country.min === country.max ? `${country.min} digits` : `${country.min}–${country.max} digits`;
+  const emailMsg = !emailFormatOk
+    ? "Enter a valid email address."
+    : !emailIsCom
+      ? "Email must end in .com"
+      : "";
 
   async function submit() {
     setTouched(true);
@@ -144,18 +231,23 @@ export function BookingModal({
     setSubmitting(true);
     setError(null);
 
-    const payload = {
+    const fullPhone = `${country.dial} ${pd}`;
+    const sessionTitles = selectedServices.map((s) => s.title);
+
+    const payload: Record<string, string> = {
       access_key: ACCESS_KEY,
-      subject: `New Discovery Session request — ${svc.title}`,
+      subject: `New Discovery Session request — ${form.business.trim()} (${sessionTitles.length} session${sessionTitles.length > 1 ? "s" : ""})`,
       from_name: "Lean Hippo Website",
-      // Web3Forms maps an "email" field to a reply-to; we send the requester's.
-      email: form.email.trim(),
-      "Discovery session": svc.title,
+      email: emailTrim, // Web3Forms uses this as reply-to (the requester)
+      "Discovery sessions": sessionTitles.join("  •  "),
+      "Sessions count": String(sessionTitles.length),
       "Preferred date": dateStr,
       "Preferred availability": win ? `${win.label} · ${win.range}` : "—",
       "Full name": form.name.trim(),
       Business: form.business.trim(),
-      Phone: form.phone.trim(),
+      "Email": emailTrim,
+      Country: `${country.name} (${country.dial})`,
+      Phone: fullPhone,
       "What to look at first": form.notes.trim() || "—",
     };
 
@@ -216,28 +308,35 @@ export function BookingModal({
         <div className="book-body">
           {step === 0 && (
             <div className="book-pane">
-              <h3 className="book-h">Choose your Discovery Session</h3>
+              <h3 className="book-h">Choose your Discovery Sessions</h3>
+              <p className="book-sub" style={{ marginTop: -4, marginBottom: 16 }}>
+                Select one or more — pick every area you want us to look at.
+              </p>
               <div className="book-svcs">
-                {BOOK_SERVICES.map((s) => (
-                  <button
-                    key={s.key}
-                    className={"book-svc" + (service === s.key ? " sel" : "")}
-                    onClick={() => setService(s.key)}
-                  >
-                    <div className="bs-ic">
-                      <Icon name={s.icon} size={20} color="var(--lh-cobalt-100)" />
-                    </div>
-                    <div className="bs-main">
-                      <div className="bs-row">
-                        <span className="bs-t">{s.title}</span>
+                {BOOK_SERVICES.map((s) => {
+                  const sel = services.includes(s.key);
+                  return (
+                    <button
+                      key={s.key}
+                      className={"book-svc" + (sel ? " sel" : "")}
+                      onClick={() => toggleService(s.key)}
+                      aria-pressed={sel}
+                    >
+                      <div className="bs-ic">
+                        <Icon name={s.icon} size={20} color="var(--lh-cobalt-100)" />
                       </div>
-                      <div className="bs-d">{s.desc}</div>
-                    </div>
-                    <span className="bs-check">
-                      {service === s.key ? <Icon name="check" size={15} color="#fff" /> : null}
-                    </span>
-                  </button>
-                ))}
+                      <div className="bs-main">
+                        <div className="bs-row">
+                          <span className="bs-t">{s.title}</span>
+                        </div>
+                        <div className="bs-d">{s.desc}</div>
+                      </div>
+                      <span className={"bs-check" + (sel ? " on" : "")}>
+                        {sel ? <Icon name="check" size={15} color="#fff" /> : null}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -282,43 +381,64 @@ export function BookingModal({
                 <label className="bf">
                   <span>Full name <span className="req">*</span></span>
                   <input
-                    className={touched && !form.name.trim() ? "invalid" : ""}
+                    className={touched && !nameValid ? "invalid" : ""}
                     value={form.name}
                     onChange={(e) => set("name", e.target.value)}
                     placeholder="Naledi Mokoena"
                     required
                   />
+                  {touched && !nameValid && <span className="bf-err">Please enter your full name.</span>}
                 </label>
                 <label className="bf">
                   <span>Business <span className="req">*</span></span>
                   <input
-                    className={touched && !form.business.trim() ? "invalid" : ""}
+                    className={touched && !businessValid ? "invalid" : ""}
                     value={form.business}
                     onChange={(e) => set("business", e.target.value)}
                     placeholder="Riverside Trading Co"
                     required
                   />
+                  {touched && !businessValid && <span className="bf-err">Please enter your business name.</span>}
                 </label>
                 <label className="bf">
                   <span>Work email <span className="req">*</span></span>
                   <input
                     type="email"
-                    className={touched && !EMAIL_RE.test(form.email.trim()) ? "invalid" : ""}
+                    className={touched && !emailValid ? "invalid" : ""}
                     value={form.email}
                     onChange={(e) => set("email", e.target.value)}
-                    placeholder="you@business.co.za"
+                    placeholder="you@business.com"
                     required
                   />
+                  {touched && !emailValid && <span className="bf-err">{emailMsg}</span>}
                 </label>
                 <label className="bf">
                   <span>Phone <span className="req">*</span></span>
-                  <input
-                    className={touched && !form.phone.trim() ? "invalid" : ""}
-                    value={form.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    placeholder="+27 ..."
-                    required
-                  />
+                  <div className={"book-phone" + (touched && !phoneValid ? " invalid" : "")}>
+                    <select
+                      className="book-cc"
+                      value={iso}
+                      onChange={(e) => setIso(e.target.value)}
+                      aria-label="Country code"
+                    >
+                      {COUNTRIES.map((c) => (
+                        <option key={c.iso} value={c.iso}>
+                          {c.name} ({c.dial})
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      className="book-phone-num"
+                      inputMode="numeric"
+                      value={form.phone}
+                      onChange={(e) => set("phone", e.target.value)}
+                      placeholder="1XXXXXXXXX"
+                      required
+                    />
+                  </div>
+                  {touched && !phoneValid && (
+                    <span className="bf-err">Enter a valid {country.name} number ({phoneExpected}).</span>
+                  )}
                 </label>
                 <label className="bf full">
                   <span>What should we look at first? <em>(optional)</em></span>
@@ -331,7 +451,7 @@ export function BookingModal({
                 </label>
               </div>
               {touched && !detailsValid && (
-                <div className="book-err">Please complete all required fields with a valid email to continue.</div>
+                <div className="book-err">Please correct the fields marked in red before confirming.</div>
               )}
               {error && <div className="book-err">{error}</div>}
             </div>
@@ -348,13 +468,21 @@ export function BookingModal({
               </div>
               <h3 className="book-h" style={{ textAlign: "center" }}>Request Received</h3>
               <p className="book-sub">
-                Thank you for requesting a Lean Hippo Discovery Session. Our team will review your request and get in
-                touch shortly to confirm the next step.
+                Thank you for requesting a Lean Hippo Discovery Session. A confirmation has been sent to your email, and
+                our team will review your request and get in touch shortly to confirm the next step.
               </p>
               <div className="book-summary">
-                <div className="bsum-row"><span>Session</span><b>{svc.title}</b></div>
+                <div className="bsum-row" style={{ alignItems: "flex-start" }}>
+                  <span>{selectedServices.length > 1 ? "Sessions" : "Session"}</span>
+                  <b style={{ textAlign: "right" }}>
+                    {selectedServices.map((s) => (
+                      <span key={s.key} style={{ display: "block" }}>{s.title}</span>
+                    ))}
+                  </b>
+                </div>
                 <div className="bsum-row"><span>Preferred date</span><b>{dateStr}</b></div>
                 <div className="bsum-row"><span>Availability</span><b>{win ? `${win.label} · ${win.range}` : "—"}</b></div>
+                <div className="bsum-row"><span>Contact</span><b>{country.dial} {pd}</b></div>
                 <div className="bsum-row"><span>For</span><b>{form.business || form.name || "—"}</b></div>
               </div>
             </div>
@@ -365,7 +493,7 @@ export function BookingModal({
           {step < 3 ? (
             <>
               <div className="book-foot-info">
-                {svc.title}
+                {servicesLabel}
                 {date ? ` · ${dateStr}` : ""}
                 {win ? ` · ${win.label}` : ""}
               </div>
@@ -380,7 +508,7 @@ export function BookingModal({
                   disabled={!canNext || submitting}
                   onClick={() => (step === 2 ? submit() : setStep(step + 1))}
                 >
-                  {step === 2 ? (submitting ? "Sending…" : "Submit request") : "Continue"}{" "}
+                  {step === 2 ? (submitting ? "Sending…" : "Confirm booking") : "Continue"}{" "}
                   {!submitting && <Icon name="arrow" size={16} color="#fff" />}
                 </button>
               </div>
