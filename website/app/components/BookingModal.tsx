@@ -10,17 +10,26 @@ import type { BookingService } from "./chrome-context";
    Validation rules (a booking cannot be confirmed unless ALL pass):
      • At least one Discovery Session is selected (multi-select).
      • Full name and Business are non-empty.
-     • Email is well-formed AND ends in ".com".
+     • Email is well-formed (any valid address).
      • Phone is digits that match the selected country's length.
    Invalid / empty fields are highlighted in red on submit.
 
-   On submit it POSTs to Web3Forms, which emails the full request
-   (including every selected session) to the address tied to your
-   access key — set that to contact@leanhippo.io.
+   On submit it POSTs the full request (including every selected
+   session) as JSON to our n8n webhook, which sends a branded
+   confirmation to the requester and a booking alert to
+   contact@leanhippo.io.
    ============================================================ */
 
-const ACCESS_KEY =
-  process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "REPLACE_WITH_WEB3FORMS_ACCESS_KEY";
+// n8n webhook (own domain). CORS is allowed on the n8n side. Overridable
+// at build time via NEXT_PUBLIC_BOOKING_ENDPOINT.
+const BOOKING_ENDPOINT =
+  process.env.NEXT_PUBLIC_BOOKING_ENDPOINT ||
+  "https://n8n.leanhippo.io/webhook/booking";
+
+// Optional independent logbook (e.g. a Google Apps Script that appends each
+// booking to a Google Sheet). Posted fire-and-forget on every submit, so a
+// booking is recorded even if n8n is down. Empty = disabled.
+const BOOKING_LOG_URL = process.env.NEXT_PUBLIC_BOOKING_LOG_URL || "";
 
 const CONTACT_EMAIL = "contact@leanhippo.io";
 
@@ -147,10 +156,14 @@ export function BookingModal({
   const [date, setDate] = useState<Date | null>(null);
   const [window_, setWindow] = useState<string | null>(null);
   const [iso, setIso] = useState("BD");
-  const [form, setForm] = useState({ name: "", business: "", email: "", phone: "", notes: "" });
+  const [form, setForm] = useState({ name: "", business: "", businessType: "", website: "", email: "", phone: "" });
+  // One focus note per selected session, keyed by the session key. Every
+  // selected session must have a note before checkout is allowed.
+  const [sessionNotes, setSessionNotes] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mailtoHref, setMailtoHref] = useState<string | null>(null);
   const days = useMemo(() => nextBusinessDays(12), []);
 
   useEffect(() => {
@@ -160,10 +173,12 @@ export function BookingModal({
       setDate(null);
       setWindow(null);
       setIso("BD");
-      setForm({ name: "", business: "", email: "", phone: "", notes: "" });
+      setForm({ name: "", business: "", businessType: "", website: "", email: "", phone: "" });
+      setSessionNotes({});
       setTouched(false);
       setSubmitting(false);
       setError(null);
+      setMailtoHref(null);
     }
   }, [open, initialService]);
 
@@ -182,22 +197,41 @@ export function BookingModal({
   const win = BOOK_WINDOWS.find((w) => w.key === window_);
   const country = COUNTRIES.find((c) => c.iso === iso) || COUNTRIES[0];
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const setNote = (k: string, v: string) => setSessionNotes((n) => ({ ...n, [k]: v }));
+  // Phone: digits only, drop any leading 0 (the +dial code is shown separately,
+  // so e.g. 01712345678 self-corrects to 1712345678), and hard-cap at the
+  // country's max length so it stops exactly on the right number of digits.
+  const cleanPhone = (raw: string, max: number) =>
+    raw.replace(/\D/g, "").replace(/^0+/, "").slice(0, max);
+  const setPhone = (raw: string) => set("phone", cleanPhone(raw, country.max));
   const toggleService = (k: BookingService) =>
-    setServices((cur) => (cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k]));
+    setServices((cur) => {
+      if (cur.includes(k)) {
+        setSessionNotes((n) => {
+          const { [k]: _drop, ...rest } = n;
+          return rest;
+        });
+        return cur.filter((x) => x !== k);
+      }
+      return [...cur, k];
+    });
 
   // ---- Field-level validity ----
   const emailTrim = form.email.trim().toLowerCase();
-  const emailFormatOk = EMAIL_RE.test(emailTrim);
-  const emailIsCom = emailTrim.endsWith(".com");
-  const emailValid = emailFormatOk && emailIsCom;
+  const emailValid = EMAIL_RE.test(emailTrim);
 
   const pd = phoneDigits(form.phone);
   const phoneValid = pd.length >= country.min && pd.length <= country.max;
 
   const nameValid = form.name.trim() !== "";
   const businessValid = form.business.trim() !== "";
+  const businessTypeValid = form.businessType.trim() !== "";
   const servicesValid = services.length > 0;
-  const detailsValid = nameValid && businessValid && emailValid && phoneValid;
+  // Every selected session needs its own focus note before checkout.
+  const noteValid = (k: string) => (sessionNotes[k] || "").trim() !== "";
+  const notesValid = services.every(noteValid);
+  const detailsValid =
+    nameValid && businessValid && businessTypeValid && emailValid && phoneValid && notesValid;
 
   const canNext =
     step === 0
@@ -219,11 +253,7 @@ export function BookingModal({
 
   const phoneExpected =
     country.min === country.max ? `${country.min} digits` : `${country.min}–${country.max} digits`;
-  const emailMsg = !emailFormatOk
-    ? "Enter a valid email address."
-    : !emailIsCom
-      ? "Email must end in .com"
-      : "";
+  const emailMsg = emailValid ? "" : "Enter a valid email address.";
 
   async function submit() {
     setTouched(true);
@@ -233,52 +263,96 @@ export function BookingModal({
 
     const fullPhone = `${country.dial} ${pd}`;
     const sessionTitles = selectedServices.map((s) => s.title);
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // Per-session focus notes (one note per selected session).
+    const sessionDetails = selectedServices.map((s) => ({
+      title: s.title,
+      note: (sessionNotes[s.key] || "").trim(),
+    }));
+    const notesText = sessionDetails.map((d) => `• ${d.title}\n${d.note}`).join("\n\n");
+    // Pre-rendered, escaped HTML rows the email simply injects (title + note).
+    const notesHtml = sessionDetails
+      .map(
+        (d) =>
+          `<tr><td style="padding:14px 0 2px;font-size:13px;font-weight:500;color:#1F5EFF;">${esc(d.title)}</td></tr>` +
+          `<tr><td style="padding:0 0 8px;font-size:14px;font-weight:300;color:#1C1F24;line-height:1.55;">${esc(d.note)}</td></tr>`,
+      )
+      .join("");
 
-    const payload: Record<string, string> = {
-      access_key: ACCESS_KEY,
+    const payload = {
+      name: form.name.trim(),
+      business: form.business.trim(),
+      businessType: form.businessType.trim(),
+      website: form.website.trim() || "—",
+      email: emailTrim,
+      phone: fullPhone,
+      country: `${country.name} (${country.dial})`,
+      sessions: sessionTitles,
+      sessionsText: sessionTitles.join("  •  "),
+      sessionsCount: sessionTitles.length,
+      date: dateStr,
+      availability: win ? `${win.label} · ${win.range}` : "—",
+      sessionDetails,
+      notesText,
+      notesHtml,
       subject: `New Discovery Session request — ${form.business.trim()} (${sessionTitles.length} session${sessionTitles.length > 1 ? "s" : ""})`,
-      from_name: "Lean Hippo Website",
-      email: emailTrim, // Web3Forms uses this as reply-to (the requester)
-      "Discovery sessions": sessionTitles.join("  •  "),
-      "Sessions count": String(sessionTitles.length),
-      "Preferred date": dateStr,
-      "Preferred availability": win ? `${win.label} · ${win.range}` : "—",
-      "Full name": form.name.trim(),
-      Business: form.business.trim(),
-      "Email": emailTrim,
-      Country: `${country.name} (${country.dial})`,
-      Phone: fullPhone,
-      "What to look at first": form.notes.trim() || "—",
+      submittedAt: new Date().toISOString(),
+      source: "leanhippo.io booking",
+    };
+
+    // Logbook: independent fire-and-forget copy so the booking is recorded
+    // even if n8n is unavailable. Never blocks or breaks the main submit.
+    if (BOOKING_LOG_URL) {
+      fetch(BOOKING_LOG_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      }).catch(() => {});
+    }
+
+    // Safety net: if n8n can't be reached, open a pre-filled email so the
+    // booking is never lost, and show a clear message + a manual link.
+    const failFallback = () => {
+      const body = [
+        `Name: ${payload.name}`,
+        `Business: ${payload.business}`,
+        `Email: ${payload.email}`,
+        `Phone: ${payload.phone} (${payload.country})`,
+        `Sessions: ${payload.sessionsText}`,
+        `Preferred date: ${payload.date}`,
+        `Availability: ${payload.availability}`,
+        ``,
+        `Focus notes:`,
+        payload.notesText,
+      ].join("\n");
+      const href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(payload.subject)}&body=${encodeURIComponent(body)}`;
+      setMailtoHref(href);
+      setError(
+        "We couldn't reach our booking system just now — we've opened an email with your details. Please press send and we'll get straight back to you.",
+      );
+      try {
+        window.location.href = href;
+      } catch {
+        /* ignore */
+      }
     };
 
     try {
-      if (ACCESS_KEY === "REPLACE_WITH_WEB3FORMS_ACCESS_KEY") {
-        // No key configured yet — fall back to a mailto so nothing is lost.
-        const body = Object.entries(payload)
-          .filter(([k]) => k !== "access_key" && k !== "from_name")
-          .map(([k, v]) => `${k}: ${v}`)
-          .join("\n");
-        window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-          payload.subject,
-        )}&body=${encodeURIComponent(body)}`;
-        setStep(3);
-        setSubmitting(false);
-        return;
-      }
-
-      const res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch(BOOKING_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (data.success) {
+      const data = await res.json().catch(() => ({}) as { success?: boolean; message?: string });
+      if (res.ok && data.success) {
         setStep(3);
       } else {
-        setError(data.message || "Something went wrong. Please email contact@leanhippo.io directly.");
+        failFallback();
       }
     } catch {
-      setError("Network error. Please check your connection or email contact@leanhippo.io directly.");
+      failFallback();
     } finally {
       setSubmitting(false);
     }
@@ -401,6 +475,28 @@ export function BookingModal({
                   {touched && !businessValid && <span className="bf-err">Please enter your business name.</span>}
                 </label>
                 <label className="bf">
+                  <span>Type of business <span className="req">*</span></span>
+                  <input
+                    className={touched && !businessTypeValid ? "invalid" : ""}
+                    value={form.businessType}
+                    onChange={(e) => set("businessType", e.target.value)}
+                    placeholder="e.g. Retail, Restaurant, Agency, Manufacturing"
+                    required
+                  />
+                  {touched && !businessTypeValid && (
+                    <span className="bf-err">Please tell us your type of business.</span>
+                  )}
+                </label>
+                <label className="bf">
+                  <span>Company website <em>(optional)</em></span>
+                  <input
+                    type="url"
+                    value={form.website}
+                    onChange={(e) => set("website", e.target.value)}
+                    placeholder="https://yourbusiness.com"
+                  />
+                </label>
+                <label className="bf">
                   <span>Work email <span className="req">*</span></span>
                   <input
                     type="email"
@@ -418,7 +514,11 @@ export function BookingModal({
                     <select
                       className="book-cc"
                       value={iso}
-                      onChange={(e) => setIso(e.target.value)}
+                      onChange={(e) => {
+                        const c = COUNTRIES.find((x) => x.iso === e.target.value) || COUNTRIES[0];
+                        setIso(e.target.value);
+                        set("phone", cleanPhone(form.phone, c.max));
+                      }}
                       aria-label="Country code"
                     >
                       {COUNTRIES.map((c) => (
@@ -431,8 +531,8 @@ export function BookingModal({
                       className="book-phone-num"
                       inputMode="numeric"
                       value={form.phone}
-                      onChange={(e) => set("phone", e.target.value)}
-                      placeholder="1XXXXXXXXX"
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder={"X".repeat(country.max)}
                       required
                     />
                   </div>
@@ -440,20 +540,47 @@ export function BookingModal({
                     <span className="bf-err">Enter a valid {country.name} number ({phoneExpected}).</span>
                   )}
                 </label>
-                <label className="bf full">
-                  <span>What should we look at first? <em>(optional)</em></span>
-                  <textarea
-                    value={form.notes}
-                    onChange={(e) => set("notes", e.target.value)}
-                    rows={3}
-                    placeholder="Cash control, missed enquiries, supplier pricing…"
-                  />
-                </label>
+                <div className="bf full book-notes">
+                  <span>
+                    What should we focus on in each session? <span className="req">*</span>
+                  </span>
+                  <span className="bf-note-hint">
+                    Add a short note for each session you selected — it tells us exactly where to dig in.
+                  </span>
+                  <div className="book-notes-list">
+                    {selectedServices.map((s) => (
+                      <label key={s.key} className="bf book-note">
+                        <span>{s.title}</span>
+                        <textarea
+                          className={touched && !noteValid(s.key) ? "invalid" : ""}
+                          value={sessionNotes[s.key] || ""}
+                          onChange={(e) => setNote(s.key, e.target.value)}
+                          rows={2}
+                          placeholder="What's happening here, and what you want out of this session…"
+                        />
+                        {touched && !noteValid(s.key) && (
+                          <span className="bf-err">Please add a note for this session.</span>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
               {touched && !detailsValid && (
                 <div className="book-err">Please correct the fields marked in red before confirming.</div>
               )}
-              {error && <div className="book-err">{error}</div>}
+              {error && (
+                <div className="book-err">
+                  {error}
+                  {mailtoHref && (
+                    <div style={{ marginTop: 10 }}>
+                      <a className="btn btn-primary" href={mailtoHref}>
+                        Send your booking by email
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

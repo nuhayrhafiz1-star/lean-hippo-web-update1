@@ -25,9 +25,10 @@
   Header always set X-XSS-Protection "0"
   # HSTS — only enable once HTTPS is confirmed working for the whole site.
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-  # Content Security Policy. Allows: self, Google Fonts, Web3Forms submit.
+  # Content Security Policy. Allows: self, Google Fonts, and the n8n booking
+  # webhook (booking form POSTs there).
   # 'unsafe-inline' is required for Next's inline bootstrap + element styles.
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://api.web3forms.com; form-action 'self' https://api.web3forms.com mailto:; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://n8n.leanhippo.io https://script.google.com; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
   # Don't cache HTML (so content updates show immediately).
   <FilesMatch "\.(html)$">
     Header set Cache-Control "public, max-age=0, must-revalidate"

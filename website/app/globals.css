@@ -474,9 +474,9 @@ img, svg { display: block; }
 .book-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .book-form .bf { display: flex; flex-direction: column; gap: 8px; }
 .book-form .bf.full { grid-column: span 2; }
-.book-form .bf > span { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+.book-form .bf > span { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--text-primary); }
 .book-form .bf .req { color: var(--lh-cobalt-100); }
-.book-form .bf em { color: var(--text-faint); text-transform: none; letter-spacing: 0; font-style: normal; }
+.book-form .bf em { color: var(--text-muted); text-transform: none; letter-spacing: 0; font-style: normal; }
 .book-form input, .book-form textarea { background: var(--surface-inset); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 12px 14px;
   color: var(--text-primary); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s; resize: none; }
 .book-form input:focus, .book-form textarea:focus { border-color: var(--border-lit); box-shadow: var(--glow-focus); }
@@ -492,6 +492,12 @@ img, svg { display: block; }
 .book-phone .book-cc:focus, .book-phone .book-phone-num:focus { border-color: var(--border-lit); box-shadow: var(--glow-focus); }
 .book-phone.invalid .book-cc, .book-phone.invalid .book-phone-num { border-color: var(--lh-critical); }
 .book-form .bf-err { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.4; color: var(--lh-critical); }
+/* Per-session focus notes — one required, labelled box per selected session */
+.book-form .book-notes { gap: 10px; }
+.book-form .bf-note-hint { font-family: inherit; font-size: 13px; line-height: 1.5; letter-spacing: 0; text-transform: none; color: var(--text-secondary); margin: 2px 0; }
+.book-form .book-notes-list { display: grid; gap: 12px; margin-top: 4px; }
+.book-form .book-note { gap: 6px; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-lit); background: var(--lh-glass-fill-cobalt); box-shadow: var(--glow-sm); }
+.book-form .book-note > span { font-family: inherit; font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--text-primary); }
 .book-err { color: #E88; font-size: 13px; margin-top: 14px; text-align: center; }
 .book-confirm { text-align: center; }
 .bc-orb { display: flex; justify-content: center; margin-bottom: 8px; }
